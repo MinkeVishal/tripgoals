@@ -10,7 +10,7 @@ const client = new Client()
 export const databases = new Databases(client);
 export const storage = new Storage(client);
 
-export const DATABASE_ID = '68b33bf10034e18837cc';
+export const DATABASE_ID = '68cbec5d002f450d2c36';
 export const PACKAGES_COLLECTION_ID = 'packages';
 export const CATEGORIES_COLLECTION_ID = 'categories';
 export const STORAGE_BUCKET_ID = 'images';
