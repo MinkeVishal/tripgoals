@@ -27,7 +27,7 @@ interface PackageFormProps {
 export default function PackageForm({ package: editPackage, categories, onClose }: PackageFormProps) {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(
-    editPackage ? `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/images/files/${editPackage.imageId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}` : null
+    editPackage ? `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/68cbee510018bf68f24c/files/${editPackage.imageId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}` : null
   );
   const [whatsIncluded, setWhatsIncluded] = useState<string[]>(editPackage?.whatsIncluded || ['']);
 

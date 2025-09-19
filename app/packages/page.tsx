@@ -142,7 +142,7 @@ export default function AllPackagesPage() {
                   >
                     <div className="h-[200px] overflow-hidden relative">
                       <img 
-                        src={`${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/images/files/${pkg.imageId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`}
+                        src={`${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/68cbee510018bf68f24c/files/${pkg.imageId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`}
                         alt={pkg.title}
                         className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                       />

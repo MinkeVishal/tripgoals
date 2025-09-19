@@ -21,7 +21,7 @@ interface CategoryFormProps {
 export default function CategoryForm({ category: editCategory, onClose }: CategoryFormProps) {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(
-    editCategory ? `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/images/files/${editCategory.imageId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}` : null
+    editCategory ? `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/68cbee510018bf68f24c/files/${editCategory.imageId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}` : null
   );
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {

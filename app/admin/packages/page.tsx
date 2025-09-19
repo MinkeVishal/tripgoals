@@ -113,7 +113,7 @@ export default function PackagesManagement() {
               <div key={pkg.$id} className="bg-white rounded-xl shadow-md overflow-hidden">
                 <div className="relative h-48">
                   <img
-                    src={`${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/images/files/${pkg.imageId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`}
+                    src={`${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/68cbee510018bf68f24c/files/${pkg.imageId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`}
                     alt={pkg.title}
                     className="w-full h-full object-cover"
                   />

@@ -13,7 +13,7 @@ export const storage = new Storage(client);
 export const DATABASE_ID = '68cbec5d002f450d2c36';
 export const PACKAGES_COLLECTION_ID = 'packages';
 export const CATEGORIES_COLLECTION_ID = 'categories';
-export const STORAGE_BUCKET_ID = 'images';
+export const STORAGE_BUCKET_ID = '68cbee510018bf68f24c';
 
 // Sample data for packages
 export const samplePackages = [

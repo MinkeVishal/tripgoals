@@ -107,7 +107,7 @@ export default function CategoriesManagement() {
               <div key={category.$id} className="bg-white rounded-xl shadow-md overflow-hidden">
                 <div className="relative h-48">
                   <img
-                    src={`${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/images/files/${category.imageId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`}
+                    src={`${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/68cbee510018bf68f24c/files/${category.imageId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`}
                     alt={category.name}
                     className="w-full h-full object-cover"
                   />
