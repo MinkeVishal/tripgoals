@@ -94,10 +94,10 @@ const sampleImageUrls: { [key: string]: string } = {
 };
 
 // Package operations
-export const getPackages = async (limit?: number, section?: string): Promise<Models.DocumentList<Package>> => {
+export const getPackages = async (limit: number = 1000, section?: string): Promise<Models.DocumentList<Package>> => {
   try {
     const queries = [];
-    if (limit) queries.push(Query.limit(limit));
+    if (limit) queries.push(Query.limit(limit)) ;
     if (section) queries.push(Query.equal('section', section));
 
     return await databases.listDocuments(DATABASE_ID, PACKAGES_COLLECTION_ID, queries) as Models.DocumentList<Package>;
@@ -128,7 +128,7 @@ export const getPackageById = async (id: string): Promise<Package> => {
   }
 };
 
-export const getLatestPackages = async (limit?: number): Promise<Models.DocumentList<Package>> => {
+export const getLatestPackages = async (limit: number = 1000): Promise<Models.DocumentList<Package>> => {
   try {
     const queries = [];
     if (limit) queries.push(Query.limit(limit));

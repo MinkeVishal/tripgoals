@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getPackages } from '@/lib/appwrite';
-import { Package } from '@/types';
+import { getPackages, getCategories } from '@/lib/appwrite';
+import { Package, Category } from '@/types';
 
 export default function AllPackagesPage() {
   const [packages, setPackages] = useState<Package[]>([]);
@@ -11,6 +11,7 @@ export default function AllPackagesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [priceFilter, setPriceFilter] = useState('');
+  const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
     const fetchPackages = async () => {
@@ -25,7 +26,17 @@ export default function AllPackagesPage() {
       }
     };
 
+    const fetchCategories = async () => {
+      try {
+        const response = await getCategories();
+        setCategories(response.documents as Category[]);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
     fetchPackages();
+    fetchCategories();
   }, []);
 
   useEffect(() => {
@@ -106,9 +117,11 @@ export default function AllPackagesPage() {
                 className="px-2 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500 min-w-[200px]"
               >
                 <option value="">All Categories</option>
-                <option value="popular">Popular</option>
-                <option value="special">Special</option>
-                <option value="adventure">Adventure</option>
+                {categories.map((category) => (
+                  <option key={category.$id} value={category.name}>
+                    {category.name}
+                  </option>
+                ))}
               </select>
               <select 
                 value={priceFilter}
