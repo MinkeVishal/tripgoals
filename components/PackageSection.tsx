@@ -34,15 +34,12 @@ export default function PackageSection({ title, section, limit = 10 }: PackageSe
 
   if (loading) {
     return (
-      <section className="py-4 relative z-10">
+      <section className="py-2 relative z-10">
         <div className="max-w-full mx-auto px-5">
-          <h2 className="text-xl font-bold text-center text-black mt-16 mb-4">
+          <h2 className="text-xl font-bold text-center text-white mt-7 mb-4">
             {title}
           </h2>
-          <p className="text-center text-black/90 mb-2 text-base">
-            Explore India's most sought-after destinations
-          </p>
-          
+
           <div className="relative overflow-hidden py-1">
             <div className="flex space-x-4 overflow-x-auto hide-scrollbar py-4">
               {[...Array(6)].map((_, i) => (
@@ -58,12 +55,9 @@ export default function PackageSection({ title, section, limit = 10 }: PackageSe
   return (
     <section id="packages" className="py-4 relative z-10">
       <div className="max-w-full mx-auto px-5">
-        <h2 className="text-xl font-bold text-center text-black mt-16 mb-4">
+        <h2 className="text-xl font-bold text-center text-white mt-7 mb-4">
           {title}
         </h2>
-        <p className="text-center text-black/90 mb-2 text-base">
-          Explore India's most sought-after destinations
-        </p>
         
         <div className="relative overflow-hidden py-1">
           <div className="flex space-x-4 overflow-x-auto hide-scrollbar py-4 smooth-scroll">

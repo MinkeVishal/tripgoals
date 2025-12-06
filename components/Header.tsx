@@ -68,7 +68,7 @@ export default function Header() {
               <li>
                 <Link 
                   href="/" 
-                  className={`text-black font-medium text-sm transition-all duration-300 hover:text-yellow-400 hover:-translate-y-0.5 relative ${
+                  className={`text-white font-medium text-sm transition-all duration-300 hover:text-yellow-400 hover:-translate-y-0.5 relative ${
                     pathname === '/' ? 'text-yellow-400' : ''
                   }`}
                 >
@@ -81,7 +81,7 @@ export default function Header() {
               <li>
                 <Link 
                   href="/packages" 
-                  className={`text-black font-medium text-sm transition-all duration-300 hover:text-yellow-400 hover:-translate-y-0.5 relative ${
+                  className={`text-white font-medium text-sm transition-all duration-300 hover:text-yellow-400 hover:-translate-y-0.5 relative ${
                     pathname === '/packages' ? 'text-yellow-400' : ''
                   }`}
                 >
@@ -94,7 +94,7 @@ export default function Header() {
               <li>
                 <Link 
                   href="/about" 
-                  className={`text-black font-medium text-sm transition-all duration-300 hover:text-yellow-400 hover:-translate-y-0.5 relative ${
+                  className={`text-white font-medium text-sm transition-all duration-300 hover:text-yellow-400 hover:-translate-y-0.5 relative ${
                     pathname === '/about' ? 'text-yellow-400' : ''
                   }`}
                 >
@@ -107,7 +107,7 @@ export default function Header() {
               <li>
                 <Link 
                   href="/contact" 
-                  className={`text-black font-medium text-sm transition-all duration-300 hover:text-yellow-400 hover:-translate-y-0.5 relative ${
+                  className={`text-white font-medium text-sm transition-all duration-300 hover:text-yellow-400 hover:-translate-y-0.5 relative ${
                     pathname === '/contact' ? 'text-yellow-400' : ''
                   }`}
                 >

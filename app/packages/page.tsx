@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getPackages, getCategories } from '@/lib/appwrite';
-import { Package, Category } from '@/types';
+import { getPackages } from '@/lib/appwrite';
+import { Package } from '@/types';
 
 export default function AllPackagesPage() {
   const [packages, setPackages] = useState<Package[]>([]);
@@ -11,7 +11,6 @@ export default function AllPackagesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [priceFilter, setPriceFilter] = useState('');
-  const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
     const fetchPackages = async () => {
@@ -26,17 +25,7 @@ export default function AllPackagesPage() {
       }
     };
 
-    const fetchCategories = async () => {
-      try {
-        const response = await getCategories();
-        setCategories(response.documents as Category[]);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      }
-    };
-
     fetchPackages();
-    fetchCategories();
   }, []);
 
   useEffect(() => {
@@ -85,23 +74,23 @@ export default function AllPackagesPage() {
 
   return (
     <div className="unified-background min-h-screen bg-cover bg-center bg-fixed animate-background-move relative">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-blue-800/20 to-gray-700/30 animate-gradient-shift"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-blue-800/20 to-gray-700/30 animate-gradient-shift mb-0"></div>
       
       <div className="relative z-10">
         {/* Page Header */}
-        <section className="bg-gradient-to-r from-black/70 via-black/40 to-black/60 text-white py-20 text-center relative z-10">
+        <section className="bg-gradient-to-r from-black/70 via-black/40 to-black/60 text-yellow-400 py-20 text-center relative z-10">
           <div className="max-w-3xl mx-auto px-4">
-            <h1 className="text-3xl md:text-5xl font-bold mb-4 drop-shadow-lg">
+            <h1 className="text-2xl md:text-4xl mb-2 drop-shadow-lg">
               All Travel Packages
             </h1>
-            <p className="text-lg md:text-xl opacity-90 drop-shadow-md">
+            <p className="text-lg md:text-xl opacity-90 drop-shadow-md text-orange-400">
               Discover amazing destinations across India
             </p>
           </div>
         </section>
 
         {/* Filter Section */}
-        <section className="bg-white/50 py-10 sticky top-10 z-10 backdrop-blur-sm">
+        <section className="bg-white/50 py-3 sticky z-10 backdrop-blur-sm">
           <div className="max-w-4xl mx-auto px-5">
             <div className="flex flex-col md:flex-row justify-center items-center space-y-1 md:space-y-0 md:space-x-2">
               <input 
@@ -117,11 +106,9 @@ export default function AllPackagesPage() {
                 className="px-2 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500 min-w-[200px]"
               >
                 <option value="">All Categories</option>
-                {categories.map((category) => (
-                  <option key={category.$id} value={category.name}>
-                    {category.name}
-                  </option>
-                ))}
+                <option value="popular">Popular</option>
+                <option value="special">Special</option>
+                <option value="adventure">Adventure</option>
               </select>
               <select 
                 value={priceFilter}
@@ -155,7 +142,7 @@ export default function AllPackagesPage() {
                   >
                     <div className="h-[200px] overflow-hidden relative">
                       <img 
-                        src={`${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/68cbee510018bf68f24c/files/${pkg.imageId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`}
+                        src={`${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/images/files/${pkg.imageId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`}
                         alt={pkg.title}
                         className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                       />
@@ -204,7 +191,14 @@ export default function AllPackagesPage() {
 
       <style jsx>{`
         .unified-background {
-          background-image: url('https://images.unsplash.com/photo-1580475805491-3b1b70c4ef86?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+          background-image: url('https://images.unsplash.com/photo-1601333924055-f92c327e598b?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); /* default: desktop */
+        }
+
+        /* For tablets and smaller screens */
+        @media (max-width: 768px) {
+          .unified-background {
+            background-image: url('https://images.unsplash.com/photo-1662984130816-aee412d03066?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+          }
         }
       `}</style>
     </div>

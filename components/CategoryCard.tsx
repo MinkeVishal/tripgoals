@@ -11,7 +11,7 @@ interface CategoryCardProps {
 export default function CategoryCard({ category }: CategoryCardProps) {
   return (
     <Link href={`/categories?filter=${category.name}`}>
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl overflow-hidden shadow-lg transition-all duration-300 cursor-pointer relative min-w-[120px] flex-shrink-0 hover:-translate-y-1 hover:shadow-xl">
+      <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl overflow-hidden shadow-lg transition-all duration-300 cursor-pointer relative min-w-[110px] flex-shrink-0 hover:-translate-y-1 hover:shadow-xl">
         <div className="h-20 overflow-hidden relative">
           <img 
             src={getImageUrl(category.imageId)} 

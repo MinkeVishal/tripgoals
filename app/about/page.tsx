@@ -19,12 +19,12 @@ export default function AboutPage() {
 
       <div className="relative z-10">
         {/* Page Header */}
-        <section className="bg-gradient-to-r from-black/60 via-black/40 to-black/60 text-white py-32 text-center relative z-10">
+        <section className="bg-gradient-to-r from-black/60 via-black/40 to-black/60 text-yellow-500 py-32 text-center relative z-10">
           <div className="max-w-4xl mx-auto px-5">
             <h1 className="text-3xl md:text-5xl font-bold mb-4 drop-shadow-lg">
               About TripGoals
             </h1>
-            <p className="text-lg md:text-xl opacity-90 drop-shadow-md">
+            <p className="text-lg md:text-xl opacity-90 drop-shadow-md text-white">
               Discover our passion for creating unforgettable travel experiences
             </p>
           </div>
@@ -35,10 +35,10 @@ export default function AboutPage() {
           <div className="max-w-7xl mx-auto px-5">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <div className="space-y-8">
-                <h2 className="text-3xl md:text-4xl font-bold text-black">
+                <h2 className="text-3xl md:text-4xl font-bold text-yellow-400">
                   Our Story
                 </h2>
-                <p className="text-lg leading-relaxed text-black">
+                <p className="text-lg leading-relaxed text-slate-200">
                   Founded with a passion for exploring India's incredible
                   diversity, TripGoals has been curating exceptional travel
                   experiences for over a decade. We believe that travel is not
@@ -46,7 +46,7 @@ export default function AboutPage() {
                   last a lifetime.
                 </p>
 
-                <p className="text-lg leading-relaxed text-black">
+                <p className="text-lg leading-relaxed text-slate-200">
                   Our team of experienced travel experts works tirelessly to
                   design unique itineraries that showcase the best of what India
                   has to offer - from the snow-capped peaks of the Himalayas to
@@ -88,7 +88,7 @@ export default function AboutPage() {
 
               <div className="rounded-2xl overflow-hidden shadow-2xl">
                 <img
-                  src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
+                  src="https://images.unsplash.com/photo-1683858222142-e5596d680fe3?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                   alt="Travel Adventure"
                   className="w-full h-full object-cover"
                 />
@@ -146,7 +146,7 @@ export default function AboutPage() {
                   key={index}
                   className="bg-white p-8 rounded-2xl text-center shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
                 >
-                  <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-2xl">
+                  <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center text-white text-2xl">
                     <FontAwesomeIcon icon={feature.icon} />
                   </div>
                   <h3 className="text-xl font-semibold text-gray-800 mb-4">
@@ -162,7 +162,7 @@ export default function AboutPage() {
         </section>
 
         {/* Stats Section */}
-        <section className="py-20 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+        <section className="py-20 bg-gradient-to-r from-yellow-400 to-orange-400 text-white">
           <div className="max-w-7xl mx-auto px-5">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {[
@@ -185,7 +185,14 @@ export default function AboutPage() {
 
       <style jsx>{`
         .unified-background {
-          background-image: url("https://images.unsplash.com/photo-1580475805491-3b1b70c4ef86?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+          background-image: url('https://images.unsplash.com/photo-1601333924055-f92c327e598b?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); /* default: desktop */
+        }
+
+        /* For tablets and smaller screens */
+        @media (max-width: 768px) {
+          .unified-background {
+            background-image: url('https://images.unsplash.com/photo-1662984130816-aee412d03066?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+          }
         }
       `}</style>
     </div>

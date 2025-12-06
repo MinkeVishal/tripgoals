@@ -95,7 +95,7 @@ export default function ContactPage() {
       
       <div className="relative z-10">
         {/* Page Header */}
-        <section className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-32 text-center">
+        <section className="bg-gradient-to-r from-black to-blue-950 text-white py-32 text-center">
           <div className="max-w-4xl mx-auto px-5">
             <h1 className="text-3xl md:text-5xl font-bold mb-4">
               Contact Us
@@ -147,7 +147,7 @@ export default function ContactPage() {
                     const IconComponent = method.icon;
                     return (
                       <div key={index} className="flex items-center space-x-4 bg-white p-6 rounded-2xl shadow-lg">
-                        <div className="w-15 h-15 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white p-4">
+                        <div className="w-15 h-15 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center text-white p-4">
                           <IconComponent size={24} />
                         </div>
                         <div>
@@ -249,7 +249,7 @@ export default function ContactPage() {
                   
                   <button 
                     onClick={submitContactForm}
-                    className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white border-none px-8 py-4 rounded-full text-base font-semibold cursor-pointer transition-all duration-300 mt-4 inline-flex items-center justify-center space-x-2 hover:from-blue-600 hover:to-blue-500 hover:-translate-y-0.5"
+                    className="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-white border-none px-8 py-4 rounded-full text-base font-semibold cursor-pointer transition-all duration-300 mt-4 inline-flex items-center justify-center space-x-2 hover:from-orange-500 hover:to-red-600 hover:-translate-y-0.5"
                   >
                     <Send size={20} />
                     <span>Send Message</span>
@@ -428,7 +428,7 @@ export default function ContactPage() {
               </div>
               <button 
                 onClick={submitCallbackRequest}
-                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white border-none px-4 py-4 rounded-xl text-base font-semibold cursor-pointer transition-all duration-300 mt-4 hover:from-blue-600 hover:to-blue-500 hover:-translate-y-0.5"
+                className="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-white border-none px-4 py-4 rounded-xl text-base font-semibold cursor-pointer transition-all duration-300 mt-4 hover:from-blue-600 hover:to-blue-500 hover:-translate-y-0.5"
               >
                 Request Callback
               </button>

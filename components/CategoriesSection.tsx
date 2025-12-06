@@ -82,8 +82,8 @@ export default function CategoriesSection() {
   return (
     <section className="py-5 relative z-10">
       <div className="max-w-full mx-auto px-5">
-        <h2 className="text-xl font-bold text-center text-black mb-4">Categories</h2>
-        <p className="text-center text-black/90 mb-2 text-base">Choose your travel style</p>
+        <h2 className="text-xl font-bold text-center text-white mb-4">Categories</h2>
+        <p className="text-center text-yellow-600 mb-2 text-base">Choose your travel style</p>
         
         <div className="flex space-x-4 mt-6 overflow-x-auto hide-scrollbar py-2">
           {categories.map((category) => (
@@ -100,10 +100,10 @@ export default function CategoriesSection() {
                 />
               </div>
               <div className="p-3 bg-white">
-                <h3 className="text-xs font-semibold mb-1 text-black text-center">
+                <h3 className="text-20px font-semibold mb-2 text-black text-center">
                   {category.name}
                 </h3>
-                <p className="text-black/90 text-[10px] leading-tight text-center">
+                <p className="text-black/90 text-[13px] leading-tight text-center">
                   {category.description}
                 </p>
               </div>
