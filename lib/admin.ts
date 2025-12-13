@@ -1,5 +1,5 @@
-import { Client, Databases, Storage, ID } from 'appwrite';
-import { Package, Category } from '@/types';
+import { Client, Databases, Storage, ID, Query } from 'appwrite';
+import { Package, Category, Banner } from '@/types';
 
 const adminClient = new Client()
   .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
@@ -13,12 +13,15 @@ export const DATABASE_ID = '68cbec5d002f450d2c36';
 export const PACKAGES_COLLECTION_ID = 'packages';
 export const CATEGORIES_COLLECTION_ID = 'categories';
 export const STORAGE_BUCKET_ID = '68cbee510018bf68f24c';
+export const BANNERS_COLLECTION_ID = 'banners';
 
 // Type for creating packages (excluding Appwrite document properties)
 type CreatePackageData = Pick<Package, 'title' | 'subtitle' | 'days' | 'category' | 'imageId' | 'description' | 'whatsIncluded' | 'section'>;
 
 // Type for creating categories (excluding Appwrite document properties)
 type CreateCategoryData = Pick<Category, 'name' | 'description' | 'imageId'>;
+
+type BannerData = Pick<Banner, 'title' | 'subtitle' | 'ctaLabel' | 'backgroundImageId'>;
 
 // Package CRUD operations
 export const createPackage = async (packageData: CreatePackageData) => {
@@ -56,6 +59,21 @@ export const updateCategory = async (id: string, categoryData: Partial<CreateCat
 
 export const deleteCategory = async (id: string) => {
   return await adminDatabases.deleteDocument(DATABASE_ID, CATEGORIES_COLLECTION_ID, id);
+};
+
+export const upsertBanner = async (bannerData: BannerData) => {
+  try {
+    // Attempt to update first existing document
+    const list = await adminDatabases.listDocuments(DATABASE_ID, BANNERS_COLLECTION_ID, [Query.limit(1)]);
+    const existing = list.documents?.[0];
+    if (existing) {
+      return await adminDatabases.updateDocument(DATABASE_ID, BANNERS_COLLECTION_ID, existing.$id, bannerData);
+    }
+  } catch (error) {
+    // ignore and create new below
+  }
+
+  return await adminDatabases.createDocument(DATABASE_ID, BANNERS_COLLECTION_ID, ID.unique(), bannerData);
 };
 
 // File operations

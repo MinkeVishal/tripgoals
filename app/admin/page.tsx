@@ -142,6 +142,17 @@ export default function AdminDashboard() {
               Manage Categories
             </button>
           </div>
+
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Banner Management</h2>
+            <p className="text-gray-600 mb-4">Edit the home banner title, subtitle, CTA, and background</p>
+            <button
+              onClick={() => router.push('/admin/banner')}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+            >
+              Manage Banner
+            </button>
+          </div>
         </div>
       </div>
     </div>

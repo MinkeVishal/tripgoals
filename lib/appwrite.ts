@@ -1,7 +1,7 @@
 "use client";
 
 import { Client, Databases, Storage, Query, Models } from 'appwrite';
-import { Package, Category } from '@/types';
+import { Package, Category, Banner } from '@/types';
 
 const client = new Client()
   .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
@@ -14,6 +14,7 @@ export const DATABASE_ID = '68cbec5d002f450d2c36';
 export const PACKAGES_COLLECTION_ID = 'packages';
 export const CATEGORIES_COLLECTION_ID = 'categories';
 export const STORAGE_BUCKET_ID = '68cbee510018bf68f24c';
+export const BANNERS_COLLECTION_ID = 'banners';
 
 // Sample data for packages
 export const samplePackages = [
@@ -84,6 +85,19 @@ export const samplePackages = [
   }
 ];
 
+const sampleBanner: Banner = {
+  $id: 'sample-banner',
+  $createdAt: '',
+  $updatedAt: '',
+  $permissions: [],
+  $databaseId: DATABASE_ID,
+  $collectionId: BANNERS_COLLECTION_ID,
+  title: 'Discover Incredible India',
+  subtitle: 'Experience the magic of India with our travel packages',
+  ctaLabel: 'Explore All Packages',
+  backgroundImageId: 'sample1'
+};
+
 // Sample image URLs for packages
 const sampleImageUrls: { [key: string]: string } = {
   sample1: 'https://images.unsplash.com/photo-1567601169793-64703dc5324a?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
@@ -113,6 +127,17 @@ export const getPackages = async (limit: number = 1000, section?: string): Promi
     }
     return { documents: filtered } as Models.DocumentList<Package>;
   }
+};
+
+export const getBanner = async (): Promise<Banner> => {
+  try {
+    const response = await databases.listDocuments(DATABASE_ID, BANNERS_COLLECTION_ID, [Query.limit(1)]);
+    const bannerDoc = (response.documents?.[0] as Banner) || null;
+    if (bannerDoc) return bannerDoc;
+  } catch (error) {
+    console.log('Using sample banner');
+  }
+  return sampleBanner;
 };
 
 export const getPackageById = async (id: string): Promise<Package> => {

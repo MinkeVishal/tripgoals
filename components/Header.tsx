@@ -1,14 +1,17 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { useState, useEffect, type FormEvent } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const checkAuthStatus = () => {
@@ -28,6 +31,11 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    const initialSearch = searchParams.get('search') || '';
+    setSearchTerm(initialSearch);
+  }, [searchParams]);
+
   const showLoginModal = () => {
     const event = new CustomEvent('showLoginModal');
     window.dispatchEvent(event);
@@ -38,6 +46,13 @@ export default function Header() {
     window.dispatchEvent(event);
   };
   console.log('pathname',pathname);
+  const handleSearch = (e?: FormEvent) => {
+    e?.preventDefault();
+    const query = searchTerm.trim();
+    const target = query ? `/packages?search=${encodeURIComponent(query)}` : '/packages';
+    setIsMenuOpen(false);
+    router.push(target);
+  };
   const logout = () => {
     localStorage.removeItem('currentUser');
     setCurrentUser(null);
@@ -119,6 +134,27 @@ export default function Header() {
               </li>
             </ul>
 
+            {/* Desktop Search */}
+            <form 
+              onSubmit={handleSearch}
+              className="hidden md:flex items-center bg-white/15 backdrop-blur-md border border-white/20 rounded-full px-3 py-1 mr-4 max-w-xs w-full"
+            >
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search packages"
+                className="bg-transparent flex-1 text-white text-sm placeholder-white/60 focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="text-white hover:text-yellow-300 transition-colors"
+                aria-label="Search packages"
+              >
+                <i className="fas fa-search"></i>
+              </button>
+            </form>
+
             {/* Auth Section */}
             <div className="flex items-center space-x-2">
               {currentUser ? (
@@ -187,6 +223,22 @@ export default function Header() {
           {isMenuOpen && (
             <div className="md:hidden bg-black/95 backdrop-blur-md border-t border-white/10 py-4">
               <div className="flex flex-col space-y-4 px-4">
+                <form onSubmit={handleSearch} className="flex items-center bg-white/10 border border-white/15 rounded-full px-3 py-2">
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search packages"
+                    className="bg-transparent flex-1 text-white text-sm placeholder-white/60 focus:outline-none"
+                  />
+                  <button
+                    type="submit"
+                    className="text-white hover:text-yellow-300 transition-colors"
+                    aria-label="Search packages"
+                  >
+                    <i className="fas fa-search"></i>
+                  </button>
+                </form>
                 <Link 
                   href="/" 
                   className="text-white font-medium py-2 hover:text-yellow-400 transition-colors"

@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getPackages } from '@/lib/appwrite';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { getPackages, getImageUrl } from '@/lib/appwrite';
 import { Package } from '@/types';
 
 export default function AllPackagesPage() {
@@ -11,6 +12,8 @@ export default function AllPackagesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [priceFilter, setPriceFilter] = useState('');
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const fetchPackages = async () => {
@@ -29,9 +32,16 @@ export default function AllPackagesPage() {
   }, []);
 
   useEffect(() => {
+    const urlSearch = searchParams.get('search') || '';
+    setSearchTerm(urlSearch);
+  }, [searchParams]);
+
+  useEffect(() => {
     let filtered = packages.filter(pkg => {
-      const matchesSearch = pkg.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                           pkg.subtitle.toLowerCase().includes(searchTerm.toLowerCase());
+      const title = pkg.title || '';
+      const subtitle = pkg.subtitle || '';
+      const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                           subtitle.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = !categoryFilter || pkg.category === categoryFilter;
       
       let matchesPrice = true;
@@ -139,10 +149,11 @@ export default function AllPackagesPage() {
                   <div 
                     key={pkg.$id}
                     className="bg-white/95 rounded-2xl overflow-hidden shadow-lg transition-all duration-300 cursor-pointer relative hover:-translate-y-1 hover:shadow-xl"
+                    onClick={() => router.push(`/package/${pkg.$id}`)}
                   >
                     <div className="h-[200px] overflow-hidden relative">
                       <img 
-                        src={`${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/images/files/${pkg.imageId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`}
+                        src={getImageUrl(pkg.imageId)}
                         alt={pkg.title}
                         className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                       />
@@ -166,6 +177,7 @@ export default function AllPackagesPage() {
                       
                       <button 
                         onClick={(e) => {
+                          e.preventDefault();
                           e.stopPropagation();
                           bookPackage(pkg.$id);
                         }}
