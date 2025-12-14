@@ -19,12 +19,13 @@ export interface Category extends Models.Document {
   imageId: string;
 }
 
-export interface Banner extends Models.Document {
+// Make document meta optional to avoid compile issues for local samples
+export type Banner = Partial<Models.Document> & {
   title: string;
   subtitle: string;
   ctaLabel: string;
   backgroundImageId: string;
-}
+};
 
 export interface AdminAuthState {
   isAuthenticated: boolean;
