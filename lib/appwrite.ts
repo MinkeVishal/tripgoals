@@ -92,6 +92,7 @@ const sampleBanner: Banner = {
   $permissions: [],
   $databaseId: DATABASE_ID,
   $collectionId: BANNERS_COLLECTION_ID,
+  $sequence: 0,
   title: 'Discover Incredible India',
   subtitle: 'Experience the magic of India with our travel packages',
   ctaLabel: 'Explore All Packages',
