@@ -49,6 +49,12 @@ export default function AdminDashboard() {
     }
   }, [isAuthenticated]);
 
+  const handleLogout = () => {
+    localStorage.removeItem('adminAuth');
+    setIsAuthenticated(false);
+    router.push('/');
+  };
+
   if (!isAuthenticated) {
     return <AdminAuth onAuthenticated={() => setIsAuthenticated(true)} />;
   }
@@ -63,9 +69,17 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-600 mt-2">Manage your travel packages and categories</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p className="text-gray-600 mt-2">Manage your travel packages and categories</p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="text-sm font-medium text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-colors"
+          >
+            Logout
+          </button>
         </div>
 
         {/* Stats Cards */}

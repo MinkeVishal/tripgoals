@@ -34,18 +34,13 @@ export default function PackageSection({ title, section, limit = 10 }: PackageSe
 
   if (loading) {
     return (
-      <section className="py-2 relative z-10">
-        <div className="max-w-full mx-auto px-5">
-          <h2 className="text-xl font-bold text-center text-white mt-7 mb-4">
-            {title}
-          </h2>
-
-          <div className="relative overflow-hidden py-1">
-            <div className="flex space-x-4 overflow-x-auto hide-scrollbar py-4">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="min-w-[240px] h-[250px] bg-white/20 rounded-[50px] animate-pulse flex-shrink-0" />
-              ))}
-            </div>
+      <section className="py-6">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-2xl font-semibold text-gray-800 text-center mb-6">{title}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="h-56 bg-gray-100 rounded-lg animate-pulse" />
+            ))}
           </div>
         </div>
       </section>
@@ -53,18 +48,14 @@ export default function PackageSection({ title, section, limit = 10 }: PackageSe
   }
 
   return (
-    <section id="packages" className="py-4 relative z-10">
-      <div className="max-w-full mx-auto px-5">
-        <h2 className="text-xl font-bold text-center text-white mt-7 mb-4">
-          {title}
-        </h2>
-        
-        <div className="relative overflow-hidden py-1">
-          <div className="flex space-x-4 overflow-x-auto hide-scrollbar py-4 smooth-scroll">
-            {packages.map((pkg) => (
-              <PackageCard key={pkg.$id} package={pkg} />
-            ))}
-          </div>
+    <section className="py-6">
+      <div className="max-w-7xl mx-auto px-4">
+        <h2 className="text-2xl font-semibold text-gray-800 text-center mb-6 animate-fadeIn">{title}</h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {packages.map((pkg) => (
+            <PackageCard key={pkg.$id} package={pkg} />
+          ))}
         </div>
       </div>
     </section>

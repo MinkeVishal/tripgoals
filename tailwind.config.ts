@@ -23,6 +23,9 @@ const config: Config = {
         'background-move': 'backgroundMove 30s ease-in-out infinite',
         'gradient-shift': 'gradientShift 20s ease-in-out infinite',
         'fade-in-up': 'fadeInUp 1s ease-out',
+        'fade-in': 'fadeIn 0.8s ease-out',
+        'scale-in': 'scaleIn 0.6s ease-out',
+        'slide-up': 'slideUp 0.6s ease-out',
         'modal-slide-in': 'modalSlideIn 0.3s ease-out',
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
@@ -43,6 +46,34 @@ const config: Config = {
           to: {
             height: '0',
           },
+        },
+        fadeIn: {
+          from: {
+            opacity: '0',
+          },
+          to: {
+            opacity: '1',
+          }
+        },
+        scaleIn: {
+          from: {
+            opacity: '0',
+            transform: 'scale(0.95)'
+          },
+          to: {
+            opacity: '1',
+            transform: 'scale(1)'
+          }
+        },
+        slideUp: {
+          from: {
+            opacity: '0',
+            transform: 'translateY(20px)'
+          },
+          to: {
+            opacity: '1',
+            transform: 'translateY(0)'
+          }
         },
         backgroundMove: {
           '0%, 100%': { 
@@ -136,6 +167,18 @@ const config: Config = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [require('tailwindcss-animate'), 
+    function({ addUtilities }: any) {
+      addUtilities({
+        '.scrollbar-hide': {
+          '-ms-overflow-style': 'none',
+          'scrollbar-width': 'none',
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+        },
+      });
+    }
+  ],
 };
 export default config;
