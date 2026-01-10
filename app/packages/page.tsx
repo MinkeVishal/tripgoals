@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getPackages, getImageUrl } from '@/lib/appwrite';
 import { Package } from '@/types';
 
-export default function AllPackagesPage() {
+function AllPackagesContent() {
   const [packages, setPackages] = useState<Package[]>([]);
   const [filteredPackages, setFilteredPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
@@ -214,5 +214,13 @@ export default function AllPackagesPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function AllPackagesPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen pt-20"></div>}>
+      <AllPackagesContent />
+    </Suspense>
   );
 }

@@ -133,8 +133,10 @@ export const getPackages = async (limit: number = 1000, section?: string): Promi
 export const getBanner = async (): Promise<Banner> => {
   try {
     const response = await databases.listDocuments(DATABASE_ID, BANNERS_COLLECTION_ID, [Query.limit(1)]);
-    const bannerDoc = (response.documents?.[0] as Banner) || null;
-    if (bannerDoc) return bannerDoc;
+    const doc = response.documents?.[0];
+    if (doc && doc.title && doc.subtitle && doc.ctaLabel && doc.backgroundImageId) {
+      return doc as unknown as Banner;
+    }
   } catch (error) {
     console.log('Using sample banner');
   }

@@ -1,5 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import FloatingButtons from '@/components/FloatingButtons';
@@ -25,7 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-poppins">
         <div className="unified-background min-h-screen">
-          <Header />
+          <Suspense fallback={<div className="h-16" />}>
+            <Header />
+          </Suspense>
           <main>{children}</main>
           <Footer />
           <FloatingButtons />
