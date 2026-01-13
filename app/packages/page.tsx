@@ -73,7 +73,7 @@ function AllPackagesContent() {
     const whatsappMessage = encodeURIComponent(
       `Hi! I'm interested in booking the following package:\n\n` +
       `Package: ${pkg.title}\n` +
-      `Duration: ${pkg.days} days\n` +
+      `Duration: ${pkg.duration}\n` +
       `Price: ₹${pkg.price}\n\n` +
       `Please provide me with more details and booking information.`
     );
@@ -171,7 +171,7 @@ function AllPackagesContent() {
                       <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
                         <div className="flex items-center space-x-2">
                           <i className="fas fa-clock text-blue-500"></i>
-                          <span>{pkg.days} days</span>
+                          <span>{pkg.duration}</span>
                         </div>
                       </div>
                       

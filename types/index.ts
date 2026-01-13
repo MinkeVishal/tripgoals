@@ -3,7 +3,7 @@ import { Models } from 'appwrite';
 export interface Package extends Models.Document {
   title: string;
   subtitle: string;
-  days: number;
+  duration: string;
   category: string;
   imageId: string;
   description: string;

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 import { X, Upload, Plus, Trash2 } from 'lucide-react';
 import { Formik, Form, Field } from 'formik';
@@ -11,7 +12,7 @@ import toast from 'react-hot-toast';
 const packageSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   subtitle: z.string().min(1, 'Subtitle is required'),
-  days: z.number().min(1, 'Duration must be at least 1 day'),
+  duration: z.string().min(1, 'Duration is required'),
   price: z.number().min(0, 'Price must be at least 0'),
   category: z.string().min(1, 'Category is required'),
   description: z.string().min(1, 'Description is required'),
@@ -74,8 +75,8 @@ export default function PackageForm({ package: editPackage, categories, onClose 
           initialValues={{
             title: editPackage?.title || '',
             subtitle: editPackage?.subtitle || '',
-            days: editPackage?.days || 1,
-            price: editPackage?.price || 0,
+            duration: editPackage?.duration || '',
+            price: editPackage?.price || '',
             category: editPackage?.category || '',
             description: editPackage?.description || '',
             section: editPackage?.section || 'other' as const,
@@ -109,18 +110,28 @@ export default function PackageForm({ package: editPackage, categories, onClose 
                 return;
               }
 
+              if (!values.duration) {
+                toast.error('Please enter duration (e.g., 1 night 1 day)');
+                return;
+              }
+
               const packageData = {
                 ...values,
+                price: String(values.price),
                 imageId,
                 whatsIncluded: whatsIncluded.filter(item => item.trim() !== ''),
               };
+              
+              const dataToSend = packageData;
 
               if (editPackage) {
-                await updatePackage(editPackage.$id, packageData);
+                await updatePackage(editPackage.$id, dataToSend);
                 toast.success('Package updated successfully');
+                window.dispatchEvent(new Event('packageUpdated'));
               } else {
-                await createPackage(packageData as any);
+                await createPackage(dataToSend as any);
                 toast.success('Package created successfully');
+                window.dispatchEvent(new Event('packageAdded'));
               }
 
               onClose();
@@ -142,9 +153,11 @@ export default function PackageForm({ package: editPackage, categories, onClose 
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                   {imagePreview ? (
                     <div className="relative">
-                      <img
+                      <Image
                         src={imagePreview}
                         alt="Preview"
+                        width={400}
+                        height={128}
                         className="w-full h-32 object-cover rounded-lg mb-4"
                       />
                       <button
@@ -196,16 +209,15 @@ export default function PackageForm({ package: editPackage, categories, onClose 
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Days</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
                   <Field
-                    name="days"
-                    type="number"
-                    min="1"
+                    name="duration"
+                    type="text"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Number of days"
+                    placeholder="e.g., 1 night 1 day"
                   />
-                  {errors.days && touched.days && (
-                    <p className="text-red-500 text-sm mt-1">{errors.days}</p>
+                  {errors.duration && touched.duration && (
+                    <p className="text-red-500 text-sm mt-1">{errors.duration}</p>
                   )}
                 </div>
 
@@ -216,7 +228,7 @@ export default function PackageForm({ package: editPackage, categories, onClose 
                     type="number"
                     min="0"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Package price"
+                    placeholder="e.g., 25000"
                   />
                   {errors.price && touched.price && (
                     <p className="text-red-500 text-sm mt-1">{errors.price}</p>
@@ -287,7 +299,7 @@ export default function PackageForm({ package: editPackage, categories, onClose 
 
               {/* What's Included */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">What's Included</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">What&apos;s Included</label>
                 <div className="space-y-2">
                   {whatsIncluded.map((item, index) => (
                     <div key={index} className="flex space-x-2">

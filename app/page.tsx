@@ -5,7 +5,6 @@ import PackageSection from '@/components/PackageSection';
 import CategoriesSection from '@/components/CategoriesSection';
 import ForeignerGuideSection from '@/components/ForeignerGuideSection';
 import AdventureSection from '@/components/AdventureSection';
-import InteractiveMap from '@/components/InteractiveMap';
 import FloatingButtons from '@/components/FloatingButtons';
 
 export default function Home() {
@@ -21,7 +20,6 @@ export default function Home() {
         <CategoriesSection />
         <ForeignerGuideSection />
         <AdventureSection />
-        <InteractiveMap />
         <FloatingButtons />
       </div>
 

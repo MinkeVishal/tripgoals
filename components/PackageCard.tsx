@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { getImageUrl } from '@/lib/appwrite';
 import { Package } from '@/types';
 
@@ -23,9 +24,12 @@ export default function PackageCard({ package: pkg }: PackageCardProps) {
       ">
         {/* Image */}
         <div className="h-[100px] sm:h-[120px] md:h-[140px] overflow-hidden relative">
-          <img 
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <Image 
             src={getImageUrl(pkg.imageId)} 
             alt={pkg.title}
+            width={240}
+            height={140}
             className="w-full h-full object-cover transition-transform duration-400 hover:scale-110"
           />
         </div>
@@ -36,7 +40,7 @@ export default function PackageCard({ package: pkg }: PackageCardProps) {
             {pkg.title}
           </h3>
           <p className="text-sm sm:text-xs md:text-sm text-black/90 leading-relaxed text-center">
-            {pkg.subtitle}
+            {pkg.duration}
           </p>
         </div>
       </div>

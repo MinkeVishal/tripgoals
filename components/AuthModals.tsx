@@ -46,7 +46,7 @@ export default function AuthModals() {
       
       localStorage.setItem('currentUser', JSON.stringify(currentUser));
       closeModal('login');
-      window.location.reload();
+      window.dispatchEvent(new Event('userLoggedIn'));
       alert(isAdmin ? 'Admin login successful!' : 'Login successful!');
     } else {
       alert('Invalid credentials');
@@ -83,7 +83,7 @@ export default function AuthModals() {
     
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     closeModal('signup');
-    window.location.reload();
+    window.dispatchEvent(new Event('userLoggedIn'));
     alert('Account created successfully!');
   };
 
@@ -98,10 +98,7 @@ export default function AuthModals() {
             <form onSubmit={login} className="space-y-4">
               <input type="email" name="email" placeholder="Email" required className="w-full px-4 py-3 border rounded-xl"/>
               <input type="password" name="password" placeholder="Password" required className="w-full px-4 py-3 border rounded-xl"/>
-              <div className="flex space-x-4">
-                <label><input type="radio" name="userType" value="user" defaultChecked className="mr-2"/>User</label>
-                <label><input type="radio" name="userType" value="admin" className="mr-2"/>Admin</label>
-              </div>
+              <input type="hidden" name="userType" value="user" />
               <button type="submit" className="w-full bg-blue-600 text-white px-4 py-3 rounded-xl">Login</button>
             </form>
           </div>

@@ -30,6 +30,20 @@ export default function PackageSection({ title, section, limit = 10 }: PackageSe
     };
 
     fetchPackages();
+
+    // Listen for package updates
+    const handlePackageUpdate = () => {
+      setLoading(true);
+      fetchPackages();
+    };
+
+    window.addEventListener('packageAdded', handlePackageUpdate);
+    window.addEventListener('packageUpdated', handlePackageUpdate);
+
+    return () => {
+      window.removeEventListener('packageAdded', handlePackageUpdate);
+      window.removeEventListener('packageUpdated', handlePackageUpdate);
+    };
   }, [section, limit]);
 
   if (loading) {
@@ -41,7 +55,7 @@ export default function PackageSection({ title, section, limit = 10 }: PackageSe
           </h2>
 
           <div className="relative overflow-hidden py-1">
-            <div className="flex space-x-4 overflow-x-auto hide-scrollbar py-4">
+            <div className="flex space-x-4 overflow-x-auto hide-scrollbar pb-4 py-4 scroll-smooth" style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="min-w-[240px] h-[250px] bg-white/20 rounded-[50px] animate-pulse flex-shrink-0" />
               ))}
@@ -53,14 +67,14 @@ export default function PackageSection({ title, section, limit = 10 }: PackageSe
   }
 
   return (
-    <section id="packages" className="py-4 relative z-10">
+    <section id="packages" className="py-4 relative z-10" suppressHydrationWarning>
       <div className="max-w-full mx-auto px-5">
         <h2 className="text-xl font-bold text-center text-white mt-7 mb-4">
           {title}
         </h2>
         
         <div className="relative overflow-hidden py-1">
-          <div className="flex space-x-4 overflow-x-auto hide-scrollbar py-4 smooth-scroll">
+          <div className="flex space-x-4 overflow-x-auto hide-scrollbar pb-4 py-4 scroll-smooth" style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
             {packages.map((pkg) => (
               <PackageCard key={pkg.$id} package={pkg} />
             ))}

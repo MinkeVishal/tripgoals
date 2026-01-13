@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect, type FormEvent } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -72,7 +73,14 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-5">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <Link href="/" className="flex items-center">
+            <Link href="/" className="flex items-center gap-3">
+              <Image 
+                src="/Tripgoal_logo.jpeg" 
+                alt="TripGoals Logo" 
+                width={40} 
+                height={40}
+                className="rounded-full"
+              />
               <h2 className="text-4xl font-bold font-dancing-script bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
                 TripGoals
               </h2>
@@ -159,10 +167,12 @@ export default function Header() {
             <div className="flex items-center space-x-2">
               {currentUser ? (
                 <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full">
-                  <img 
-                    src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=50&h=50&fit=crop" 
-                    alt="Profile" 
-                    className="w-5 h- rounded-full object-cover"
+                  <Image
+                    src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=50&h=50&fit=crop"
+                    alt="Profile"
+                    width={20}
+                    height={20}
+                    className="rounded-full object-cover"
                   />
                   <span className="text-white text-sm font-medium">{currentUser.name}</span>
                   <button 
@@ -185,6 +195,12 @@ export default function Header() {
                     className="bg-gradient-to-r from-yellow-400 to-orange-400 text-black px-5 py-2 rounded-full text-sm font-semibold hover:from-orange-400 hover:to-yellow-400 transition-all duration-300 hover:-translate-y-0.5 shadow-lg hover:shadow-yellow-400/30"
                   >
                     Sign Up
+                  </button>
+                  <button 
+                    onClick={() => router.push('/admin')}
+                    className="bg-red-600/20 border border-red-400/30 text-red-400 px-5 py-2 rounded-full text-sm font-medium hover:bg-red-600/30 transition-all duration-300 backdrop-blur-md"
+                  >
+                    <i className="fas fa-lock mr-2"></i>Admin
                   </button>
                 </div>
               )}
@@ -269,6 +285,15 @@ export default function Header() {
                 </Link>
                 {!currentUser && (
                   <div className="flex flex-col space-y-2 pt-4 border-t border-white/10">
+                    <button 
+                      onClick={() => {
+                        router.push('/admin');
+                        setIsMenuOpen(false);
+                      }}
+                      className="bg-red-600/20 border border-red-400/30 text-red-400 px-4 py-2 rounded-full text-sm font-medium hover:bg-red-600/30 transition-colors"
+                    >
+                      <i className="fas fa-lock mr-2"></i>Admin
+                    </button>
                     <button 
                       onClick={() => {
                         showLoginModal();

@@ -33,7 +33,7 @@ export default function PackageDetails() {
     const whatsappMessage = encodeURIComponent(
       `Hi! I'm interested in booking the following package:\n\n` +
       `Package: ${packageData.title}\n` +
-      `Duration: ${packageData.days} days\n` +
+      `Duration: ${packageData.duration}\n` +
       `Price: ₹${packageData.price}\n\n` +
       `Please provide me with more details and booking information.`
     );
@@ -111,7 +111,7 @@ export default function PackageDetails() {
                 <div className="flex space-x-8">
                   <div className="flex items-center space-x-2 text-blue-600 font-medium">
                     <i className="fas fa-clock"></i>
-                    <span>{packageData.days} days</span>
+                    <span>{packageData.duration}</span>
                   </div>
                   <div className="flex items-center space-x-2 text-blue-600 font-medium">
                     <i className="fas fa-tag"></i>

@@ -128,7 +128,7 @@ export default function PackagesManagement() {
                   <h3 className="font-bold text-gray-900 mb-1">{pkg.title}</h3>
                   <p className="text-gray-600 text-sm mb-2">{pkg.subtitle}</p>
                   <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
-                    <span>{pkg.days} days</span>
+                    <span>{pkg.duration}</span>
                     <span>{pkg.category}</span>
                   </div>
                   
