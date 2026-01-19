@@ -11,17 +11,35 @@ interface PackageSectionProps {
   limit?: number;
 }
 
+// Simple in-memory cache to prevent re-fetching on every render
+const packageCache: { [key: string]: { data: Package[]; timestamp: number } } = {};
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 export default function PackageSection({ title, section, limit = 10 }: PackageSectionProps) {
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const cacheKey = `${section}-${limit}`;
+
     const fetchPackages = async () => {
+      // Check cache first
+      const cached = packageCache[cacheKey];
+      if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+        setPackages(cached.data);
+        setLoading(false);
+        return;
+      }
+
       try {
-        const response = section === 'new' 
-          ? await getLatestPackages(limit) 
+        const response = section === 'new'
+          ? await getLatestPackages(limit)
           : await getPackages(limit, section);
-        setPackages(response.documents as Package[]);
+        const docs = response.documents as Package[];
+
+        // Store in cache
+        packageCache[cacheKey] = { data: docs, timestamp: Date.now() };
+        setPackages(docs);
       } catch (error) {
         console.error('Error fetching packages:', error);
       } finally {
@@ -33,6 +51,8 @@ export default function PackageSection({ title, section, limit = 10 }: PackageSe
 
     // Listen for package updates
     const handlePackageUpdate = () => {
+      // Clear cache for this section
+      delete packageCache[cacheKey];
       setLoading(true);
       fetchPackages();
     };
@@ -56,8 +76,8 @@ export default function PackageSection({ title, section, limit = 10 }: PackageSe
 
           <div className="relative overflow-hidden py-1">
             <div className="flex space-x-4 overflow-x-auto hide-scrollbar pb-4 py-4 scroll-smooth" style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="min-w-[240px] h-[250px] bg-white/20 rounded-[50px] animate-pulse flex-shrink-0" />
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="min-w-[240px] h-[250px] bg-white/10 rounded-[50px] animate-pulse flex-shrink-0" style={{ animationDuration: '0.8s' }} />
               ))}
             </div>
           </div>
@@ -72,7 +92,7 @@ export default function PackageSection({ title, section, limit = 10 }: PackageSe
         <h2 className="text-xl font-bold text-center text-white mt-7 mb-4">
           {title}
         </h2>
-        
+
         <div className="relative overflow-hidden py-1">
           <div className="flex space-x-4 overflow-x-auto hide-scrollbar pb-4 py-4 scroll-smooth" style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
             {packages.map((pkg) => (

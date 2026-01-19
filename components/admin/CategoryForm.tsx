@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Upload } from 'lucide-react';
+import { X, Upload, Plus, Trash2 } from 'lucide-react';
 import { Formik, Form, Field } from 'formik';
 import * as z from 'zod';
 import { Category } from '@/types';
@@ -10,6 +10,9 @@ import toast from 'react-hot-toast';
 
 const categorySchema = z.object({
   name: z.string().min(1, 'Name is required'),
+  subtitle: z.string().optional(),
+  price: z.string().optional(),
+  duration: z.string().optional(),
   description: z.string().min(1, 'Description is required'),
 });
 
@@ -23,6 +26,21 @@ export default function CategoryForm({ category: editCategory, onClose }: Catego
   const [imagePreview, setImagePreview] = useState<string | null>(
     editCategory ? `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/68cbee510018bf68f24c/files/${editCategory.imageId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}` : null
   );
+  const [whatsIncluded, setWhatsIncluded] = useState<string[]>(editCategory?.whatsIncluded || ['']);
+
+  const addIncludedItem = () => {
+    setWhatsIncluded([...whatsIncluded, '']);
+  };
+
+  const updateIncludedItem = (index: number, value: string) => {
+    const updated = [...whatsIncluded];
+    updated[index] = value;
+    setWhatsIncluded(updated);
+  };
+
+  const removeIncludedItem = (index: number) => {
+    setWhatsIncluded(whatsIncluded.filter((_, i) => i !== index));
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -36,7 +54,7 @@ export default function CategoryForm({ category: editCategory, onClose }: Catego
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl max-w-md w-full">
+      <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b border-gray-200 flex justify-between items-center">
           <h2 className="text-2xl font-bold text-gray-900">
             {editCategory ? 'Edit Category' : 'Create New Category'}
@@ -52,6 +70,9 @@ export default function CategoryForm({ category: editCategory, onClose }: Catego
         <Formik
           initialValues={{
             name: editCategory?.name || '',
+            subtitle: editCategory?.subtitle || '',
+            price: editCategory?.price || '',
+            duration: editCategory?.duration || '',
             description: editCategory?.description || '',
           }}
           validate={(values) => {
@@ -85,6 +106,7 @@ export default function CategoryForm({ category: editCategory, onClose }: Catego
               const categoryData = {
                 ...values,
                 imageId,
+                whatsIncluded: whatsIncluded.filter(item => item.trim() !== ''),
               };
 
               if (editCategory) {
@@ -166,6 +188,37 @@ export default function CategoryForm({ category: editCategory, onClose }: Catego
               </div>
 
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Subtitle</label>
+                <Field
+                  name="subtitle"
+                  type="text"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="Category subtitle (e.g. 'Popular Destinations')"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Price (Optional)</label>
+                  <Field
+                    name="price"
+                    type="text"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="e.g. 5000"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Duration (Optional)</label>
+                  <Field
+                    name="duration"
+                    type="text"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="e.g. 2 Days 1 Night"
+                  />
+                </div>
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
                 <Field
                   as="textarea"
@@ -177,6 +230,38 @@ export default function CategoryForm({ category: editCategory, onClose }: Catego
                 {errors.description && touched.description && (
                   <p className="text-red-500 text-sm mt-1">{errors.description}</p>
                 )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">What's Included</label>
+                <div className="space-y-3">
+                  {whatsIncluded.map((item, index) => (
+                    <div key={index} className="flex gap-2">
+                      <input
+                        type="text"
+                        value={item}
+                        onChange={(e) => updateIncludedItem(index, e.target.value)}
+                        className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder="e.g. Hotel Stay"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeIncludedItem(index)}
+                        className="p-3 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={addIncludedItem}
+                    className="flex items-center text-green-600 font-medium hover:text-green-700"
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add Item
+                  </button>
+                </div>
               </div>
 
               <div className="flex space-x-4 pt-6 border-t border-gray-200">

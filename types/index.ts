@@ -6,6 +6,7 @@ export interface Package extends Models.Document {
   duration: string;
   category: string;
   imageId: string;
+  imageIds?: string[]; // Multiple images support
   description: string;
   whatsIncluded: string[];
   section: 'popular' | 'special' | 'other';
@@ -15,8 +16,12 @@ export interface Package extends Models.Document {
 
 export interface Category extends Models.Document {
   name: string;
+  subtitle?: string;
   description: string;
   imageId: string;
+  price?: string;
+  duration?: string;
+  whatsIncluded?: string[];
 }
 
 // Make document meta optional to avoid compile issues for local samples

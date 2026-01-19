@@ -42,7 +42,7 @@ export default function PackagesManagement() {
         getPackages(),
         getCategories()
       ]);
-      
+
       setPackages(packagesResponse.documents as Package[]);
       setCategories(categoriesResponse.documents as Category[]);
     } catch (error) {
@@ -113,7 +113,7 @@ export default function PackagesManagement() {
               <div key={pkg.$id} className="bg-white rounded-xl shadow-md overflow-hidden">
                 <div className="relative h-48">
                   <img
-                    src={`${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/68cbee510018bf68f24c/files/${pkg.imageId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`}
+                    src={`${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/68cbee510018bf68f24c/files/${pkg.imageIds?.[0] || pkg.imageId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`}
                     alt={pkg.title}
                     className="w-full h-full object-cover"
                   />
@@ -123,7 +123,7 @@ export default function PackagesManagement() {
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="p-4">
                   <h3 className="font-bold text-gray-900 mb-1">{pkg.title}</h3>
                   <p className="text-gray-600 text-sm mb-2">{pkg.subtitle}</p>
@@ -131,7 +131,7 @@ export default function PackagesManagement() {
                     <span>{pkg.duration}</span>
                     <span>{pkg.category}</span>
                   </div>
-                  
+
                   <div className="flex space-x-2">
                     <button
                       onClick={() => window.open(`/package/${pkg.$id}`, '_blank')}

@@ -4,7 +4,7 @@ import { Package, Category, Banner } from '@/types';
 const adminClient = new Client()
   .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
   .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!)
-  // .setKey(process.env.APPWRITE_API_KEY!);
+// .setKey(process.env.APPWRITE_API_KEY!);
 
 const adminDatabases = new Databases(adminClient);
 const adminStorage = new Storage(adminClient);
@@ -16,7 +16,10 @@ export const STORAGE_BUCKET_ID = '68cbee510018bf68f24c';
 export const BANNERS_COLLECTION_ID = 'banners';
 
 // Type for creating packages (excluding Appwrite document properties)
-type CreatePackageData = Pick<Package, 'title' | 'subtitle' | 'duration' | 'category' | 'imageId' | 'description' | 'whatsIncluded' | 'section' | 'price'>;
+type CreatePackageData = Omit<Pick<Package, 'title' | 'subtitle' | 'duration' | 'category' | 'imageId' | 'description' | 'whatsIncluded' | 'section'>, 'price'> & {
+  price: number | string;
+  imageIds?: string[];
+};
 
 // Type for creating categories (excluding Appwrite document properties)
 type CreateCategoryData = Pick<Category, 'name' | 'description' | 'imageId'>;

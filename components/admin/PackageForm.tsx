@@ -26,19 +26,40 @@ interface PackageFormProps {
 }
 
 export default function PackageForm({ package: editPackage, categories, onClose }: PackageFormProps) {
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(
-    editPackage ? `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/68cbee510018bf68f24c/files/${editPackage.imageId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}` : null
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>(
+    editPackage?.imageIds?.map(id =>
+      `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/68cbee510018bf68f24c/files/${id}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`
+    ) || (editPackage?.imageId ? [
+      `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/68cbee510018bf68f24c/files/${editPackage.imageId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`
+    ] : [])
+  );
+  const [existingImageIds, setExistingImageIds] = useState<string[]>(
+    editPackage?.imageIds || (editPackage?.imageId ? [editPackage.imageId] : [])
   );
   const [whatsIncluded, setWhatsIncluded] = useState<string[]>(editPackage?.whatsIncluded || ['']);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onload = () => setImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setImageFiles(prev => [...prev, ...files]);
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = () => setImagePreviews(prev => [...prev, reader.result as string]);
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const removeImage = (index: number) => {
+    const isExistingImage = index < existingImageIds.length;
+    if (isExistingImage) {
+      setExistingImageIds(prev => prev.filter((_, i) => i !== index));
+      setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    } else {
+      const newFileIndex = index - existingImageIds.length;
+      setImageFiles(prev => prev.filter((_, i) => i !== newFileIndex));
+      setImagePreviews(prev => prev.filter((_, i) => i !== index));
     }
   };
 
@@ -97,16 +118,18 @@ export default function PackageForm({ package: editPackage, categories, onClose 
           }}
           onSubmit={async (values, { setSubmitting }) => {
             try {
-              let imageId = editPackage?.imageId;
-
-              // Upload new image if provided
-              if (imageFile) {
-                const uploadResponse = await uploadImage(imageFile);
-                imageId = uploadResponse.$id;
+              // Upload all new images
+              const newImageIds: string[] = [];
+              for (const file of imageFiles) {
+                const uploadResponse = await uploadImage(file);
+                newImageIds.push(uploadResponse.$id);
               }
 
-              if (!imageId) {
-                toast.error('Please select an image');
+              // Combine existing and new image IDs
+              const allImageIds = [...existingImageIds, ...newImageIds];
+
+              if (allImageIds.length === 0) {
+                toast.error('Please select at least one image');
                 return;
               }
 
@@ -117,11 +140,12 @@ export default function PackageForm({ package: editPackage, categories, onClose 
 
               const packageData = {
                 ...values,
-                price: String(values.price),
-                imageId,
+                price: parseInt(String(values.price)) || 0,
+                imageId: allImageIds[0], // Primary image
+                imageIds: allImageIds, // All images for carousel
                 whatsIncluded: whatsIncluded.filter(item => item.trim() !== ''),
               };
-              
+
               const dataToSend = packageData;
 
               if (editPackage) {
@@ -148,48 +172,55 @@ export default function PackageForm({ package: editPackage, categories, onClose 
               {/* Image Upload */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Package Image
+                  Package Images
                 </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                  {imagePreview ? (
-                    <div className="relative">
-                      <Image
-                        src={imagePreview}
-                        alt="Preview"
-                        width={400}
-                        height={128}
-                        className="w-full h-32 object-cover rounded-lg mb-4"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setImageFile(null);
-                          setImagePreview(null);
-                        }}
-                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                  {imagePreviews.length > 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                      {imagePreviews.map((preview, index) => (
+                        <div key={index} className="relative">
+                          <Image
+                            src={preview}
+                            alt={`Preview ${index + 1}`}
+                            width={200}
+                            height={128}
+                            className="w-full h-24 object-cover rounded-lg"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                          {index === 0 && (
+                            <span className="absolute bottom-1 left-1 bg-blue-600 text-white text-xs px-2 py-0.5 rounded">Primary</span>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   ) : (
-                    <div>
+                    <div className="text-center mb-4">
                       <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600">Click to upload an image</p>
+                      <p className="text-gray-600">Click to upload images</p>
                     </div>
                   )}
                   <input
                     type="file"
                     accept="image/*"
+                    multiple
                     onChange={handleImageChange}
                     className="hidden"
                     id="image-upload"
                   />
-                  <label
-                    htmlFor="image-upload"
-                    className="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-700 transition-colors"
-                  >
-                    {imagePreview ? 'Change Image' : 'Upload Image'}
-                  </label>
+                  <div className="text-center">
+                    <label
+                      htmlFor="image-upload"
+                      className="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-700 transition-colors"
+                    >
+                      {imagePreviews.length > 0 ? 'Add More Images' : 'Upload Images'}
+                    </label>
+                  </div>
                 </div>
               </div>
 
