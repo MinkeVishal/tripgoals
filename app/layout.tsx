@@ -31,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           referrerPolicy="no-referrer"
         />
       </head>
-      <body className="font-poppins">
+      <body className="font-poppins" suppressHydrationWarning>
         <div className="unified-background min-h-screen">
           <Suspense fallback={<div className="h-16" />}>
             <Header />

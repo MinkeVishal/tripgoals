@@ -46,7 +46,7 @@ function AllPackagesContent() {
     const urlFromDate = searchParams.get('fromDate') || '';
     const urlToDate = searchParams.get('toDate') || '';
     const urlDuration = searchParams.get('duration') || '';
-    const urlCategory = searchParams.get('category') || '';
+    const urlCategory = searchParams.get('category') ? decodeURIComponent(searchParams.get('category')!) : '';
 
     setSearchTerm(urlSearch);
     setDestinationFilter(urlDestination);
@@ -67,7 +67,8 @@ function AllPackagesContent() {
         title.toLowerCase().includes(destinationFilter.toLowerCase()) ||
         subtitle.toLowerCase().includes(destinationFilter.toLowerCase());
 
-      const matchesCategory = !categoryFilter || pkg.category?.toLowerCase() === categoryFilter.toLowerCase();
+      const matchesCategory = !categoryFilter ||
+        (pkg.category && pkg.category.toLowerCase().trim() === categoryFilter.toLowerCase().trim());
 
       const matchesDuration = !durationFilter || pkg.duration?.includes(durationFilter.split('-')[0]);
 

@@ -58,6 +58,21 @@ export default function PackageDetails() {
     window.open(whatsappUrl, '_blank');
   };
 
+  const contactPackage = () => {
+    if (!packageData) return;
+
+    const whatsappMessage = encodeURIComponent(
+      `Hi! I would like to inquire about:\n\n` +
+      `Package: ${packageData.title}\n` +
+      `Duration: ${packageData.duration}\n` +
+      `Price: ₹${packageData.price}\n\n` +
+      `Please contact me with more details.`
+    );
+
+    const whatsappUrl = `https://wa.me/917709823098?text=${whatsappMessage}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   if (loading) {
     return (
       <div className="unified-background min-h-screen bg-cover bg-center bg-fixed animate-background-move relative">
@@ -131,13 +146,39 @@ export default function PackageDetails() {
 
             {/* Package Info */}
             <div className="p-8">
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-                {packageData.title}
-              </h1>
-              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+              {/* Title row with CTA buttons on right */}
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
+                  {packageData.title}
+                </h1>
+                {/* CTA Buttons */}
+                <div className="flex flex-wrap gap-2 flex-shrink-0">
+                  <button
+                    onClick={bookPackage}
+                    className="bg-gradient-to-r from-green-500 to-green-600 text-white py-2 px-4 rounded-full font-semibold flex items-center gap-2 hover:from-green-600 hover:to-green-700 transition-all shadow-md text-sm"
+                  >
+                    <i className="fab fa-whatsapp"></i>
+                    Book Now
+                  </button>
+                  <button
+                    onClick={contactPackage}
+                    className="bg-white border-2 border-blue-500 text-blue-600 py-2 px-4 rounded-full font-semibold flex items-center gap-2 hover:bg-blue-50 transition-all text-sm"
+                  >
+                    <i className="fas fa-phone-alt"></i>
+                    Quick Contact
+                  </button>
+                  <button
+                    className="bg-white border-2 border-red-400 text-red-500 py-2 px-4 rounded-full font-semibold flex items-center gap-2 hover:bg-red-50 transition-all text-sm"
+                  >
+                    <i className="fas fa-heart"></i>
+                    Wishlist
+                  </button>
+                </div>
+              </div>
+              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
                 {packageData.subtitle}
               </p>
-              <div className="flex space-x-8">
+              <div className="flex flex-wrap gap-6">
                 <div className="flex items-center space-x-2 text-blue-600 font-medium">
                   <i className="fas fa-clock"></i>
                   <span>{packageData.duration}</span>
@@ -211,6 +252,9 @@ export default function PackageDetails() {
 
                   // Force show itinerary in Itinerary Tab
                   if (activeTab === 'itinerary') {
+                    // Use the new itinerary field if available, otherwise fall back to parsed description
+                    const hasItineraryField = packageData.itinerary && packageData.itinerary.length > 0;
+
                     return (
                       <div className="animate-fadeIn">
                         <div className="flex items-center mb-6">
@@ -220,7 +264,24 @@ export default function PackageDetails() {
                           <h3 className="text-2xl font-bold text-gray-800">Tour Itinerary</h3>
                         </div>
                         <div className="space-y-4">
-                          {itinerary.length > 0 ? (
+                          {hasItineraryField ? (
+                            packageData.itinerary!.map((item, idx) => (
+                              <div key={idx} className="border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-md transition-shadow duration-300">
+                                <div className="flex items-center p-4 bg-gray-50">
+                                  <span className="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-sm mr-3">
+                                    {idx + 1}
+                                  </span>
+                                  <span className="font-semibold text-gray-800 text-lg">Day {idx + 1}</span>
+                                </div>
+                                <div className="p-4 bg-white border-t border-gray-100 text-gray-600">
+                                  <div className="pl-11 relative">
+                                    <span className="absolute left-4 top-2.5 w-1.5 h-1.5 bg-blue-200 rounded-full"></span>
+                                    {item}
+                                  </div>
+                                </div>
+                              </div>
+                            ))
+                          ) : itinerary.length > 0 ? (
                             itinerary.map((day, idx) => (
                               <ItineraryItem key={idx} day={day} index={idx} />
                             ))
@@ -252,22 +313,24 @@ export default function PackageDetails() {
               </div>
             </div>
 
-            {/* Booking Actions */}
-            <div className="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-6 p-8 mt-8">
-              <button
-                onClick={bookPackage}
-                className="bg-gradient-to-r from-green-500 to-green-600 text-white border-none px-10 py-4 rounded-full text-lg font-semibold cursor-pointer transition-all duration-300 inline-flex items-center justify-center space-x-3 hover:from-green-600 hover:to-green-500 hover:-translate-y-0.5 shadow-lg hover:shadow-green-500/30"
-              >
-                <i className="fab fa-whatsapp text-xl"></i>
-                <span>Book via WhatsApp</span>
-              </button>
-              <button
-                onClick={makeInquiry}
-                className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-none px-10 py-4 rounded-full text-lg font-semibold cursor-pointer transition-all duration-300 inline-flex items-center justify-center space-x-3 hover:from-blue-600 hover:to-blue-500 hover:-translate-y-0.5 shadow-lg hover:shadow-blue-500/30"
-              >
-                <i className="fas fa-phone text-xl"></i>
-                <span>Make Inquiry</span>
-              </button>
+            {/* Map Section */}
+            <div className="p-8 mt-4">
+              <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i className="fas fa-map-marker-alt text-red-500"></i>
+                Destination Map
+              </h3>
+              <div className="rounded-2xl overflow-hidden shadow-lg border border-gray-200">
+                <iframe
+                  src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(packageData.title + ' ' + packageData.category + ' India')}`}
+                  width="100%"
+                  height="400"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="w-full"
+                ></iframe>
+              </div>
             </div>
           </div>
         </div>

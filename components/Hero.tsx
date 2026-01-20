@@ -2,8 +2,8 @@
 
 import { useEffect, useState, FormEvent } from 'react';
 import FloatingButtons from './FloatingButtons';
-import { getBanner, getImageUrl } from '@/lib/appwrite';
-import { Banner } from '@/types';
+import { getBanner, getImageUrl, getPackages } from '@/lib/appwrite';
+import { Banner, Package } from '@/types';
 import { useRouter } from 'next/navigation';
 
 export default function Hero() {
@@ -16,6 +16,7 @@ export default function Hero() {
   const [searchQuery, setSearchQuery] = useState('');
   const [carType, setCarType] = useState('');
   const [customCar, setCustomCar] = useState('');
+  const [durations, setDurations] = useState<string[]>([]);
   const router = useRouter();
 
   // Array of images from public folder
@@ -55,7 +56,18 @@ export default function Hero() {
       }
     };
 
+    const fetchDurations = async () => {
+      try {
+        const packagesData = await getPackages();
+        const uniqueDurations = [...new Set(packagesData.documents.map((pkg: Package) => pkg.duration).filter(Boolean))];
+        setDurations(uniqueDurations);
+      } catch (error) {
+        console.error('Error loading durations:', error);
+      }
+    };
+
     fetchBanner();
+    fetchDurations();
   }, []);
 
   // Slideshow effect
@@ -130,7 +142,7 @@ export default function Hero() {
 
           {/* Right Side - Search Form */}
           <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg lg:rounded-xl p-2 lg:p-3 shadow-lg animate-fade-in-up max-w-sm lg:max-w-none">
-            <h3 className="text-xs lg:text-sm font-bold text-white mb-1.5 lg:mb-2">Find Your Holiday Destination</h3>
+            <h3 className="text-xs lg:text-sm font-bold text-white mb-1.5 lg:mb-2">Search Your Dream Place</h3>
 
             {/* Quick Search Bar */}
             <form onSubmit={handleQuickSearch} className="relative mb-3">
@@ -153,13 +165,13 @@ export default function Hero() {
 
             <form onSubmit={handleSearch} className="space-y-1 lg:space-y-1.5">
               {/* From Where and To Where */}
-              <div className="grid grid-cols-2 gap-2">
-                <div className="flex flex-col">
-                  <label className="text-white text-xs font-semibold mb-0.5">From Where</label>
+              <div className="flex items-end gap-2">
+                <div className="flex flex-col flex-1">
+                  <label className="text-white text-xs font-semibold mb-0.5">From</label>
                   <select
                     value={destination}
                     onChange={(e) => setDestination(e.target.value)}
-                    className="bg-white/20 border border-white/30 text-black rounded-lg px-2 py-1.5 focus:outline-none focus:border-yellow-400 focus:bg-white/30 transition-all duration-300 placeholder-white/50 text-xs"
+                    className="bg-white/20 border border-white/30 text-black rounded-lg px-2 py-1.5 focus:outline-none focus:border-yellow-400 focus:bg-white/30 transition-all duration-300 placeholder-white/50 text-xs w-full"
                   >
                     <option value="">Select...</option>
                     <option value="Goa">Goa</option>
@@ -173,12 +185,14 @@ export default function Hero() {
                   </select>
                 </div>
 
-                <div className="flex flex-col">
-                  <label className="text-white text-xs font-semibold mb-0.5">To Where</label>
+                <span className="text-white text-xs font-semibold pb-2">To</span>
+
+                <div className="flex flex-col flex-1">
+                  <label className="text-white text-xs font-semibold mb-0.5">Where</label>
                   <select
                     value={destination}
                     onChange={(e) => setDestination(e.target.value)}
-                    className="bg-white/20 border border-white/30 text-black rounded-lg px-2 py-1.5 focus:outline-none focus:border-yellow-400 focus:bg-white/30 transition-all duration-300 placeholder-white/50 text-xs"
+                    className="bg-white/20 border border-white/30 text-black rounded-lg px-2 py-1.5 focus:outline-none focus:border-yellow-400 focus:bg-white/30 transition-all duration-300 placeholder-white/50 text-xs w-full"
                   >
                     <option value="">Select...</option>
                     <option value="Goa">Goa</option>
@@ -193,26 +207,28 @@ export default function Hero() {
                 </div>
               </div>
 
-              {/* From Date and To Date */}
-              <div className="grid grid-cols-2 gap-2">
-                <div className="flex flex-col">
-                  <label className="text-white text-xs font-semibold mb-0.5">From</label>
+              {/* Start Date and End Date */}
+              <div className="flex items-end gap-2">
+                <div className="flex flex-col flex-1">
+                  <label className="text-white text-xs font-semibold mb-0.5">Start Date</label>
                   <input
                     type="date"
                     value={fromDate}
                     onChange={(e) => setFromDate(e.target.value)}
-                    className="bg-white/20 border border-white/30 text-white rounded-lg px-2 py-1.5 focus:outline-none focus:border-yellow-400 focus:bg-white/30 transition-all duration-300 placeholder-white/50 text-xs"
+                    className="bg-white/20 border border-white/30 text-white rounded-lg px-2 py-1.5 focus:outline-none focus:border-yellow-400 focus:bg-white/30 transition-all duration-300 placeholder-white/50 text-xs w-full"
                     placeholder="dd-mm-yyyy"
                   />
                 </div>
 
-                <div className="flex flex-col">
-                  <label className="text-white text-xs font-semibold mb-0.5">To</label>
+                <span className="text-white text-xs font-semibold pb-2">To</span>
+
+                <div className="flex flex-col flex-1">
+                  <label className="text-white text-xs font-semibold mb-0.5">End Date</label>
                   <input
                     type="date"
                     value={toDate}
                     onChange={(e) => setToDate(e.target.value)}
-                    className="bg-white/20 border border-white/30 text-white rounded-lg px-2 py-1.5 focus:outline-none focus:border-yellow-400 focus:bg-white/30 transition-all duration-300 placeholder-white/50 text-xs"
+                    className="bg-white/20 border border-white/30 text-white rounded-lg px-2 py-1.5 focus:outline-none focus:border-yellow-400 focus:bg-white/30 transition-all duration-300 placeholder-white/50 text-xs w-full"
                     placeholder="dd-mm-yyyy"
                   />
                 </div>
@@ -227,47 +243,11 @@ export default function Hero() {
                   className="bg-white/20 border border-white/30 text-black rounded-lg px-2 py-1.5 focus:outline-none focus:border-yellow-400 focus:bg-white/30 transition-all duration-300 placeholder-white/50 text-xs"
                 >
                   <option value="">Select...</option>
-                  <option value="3-days">3 Days</option>
-                  <option value="5-days">5 Days</option>
-                  <option value="7-days">7 Days</option>
-                  <option value="10-days">10 Days</option>
-                  <option value="15-days">15 Days</option>
+                  {durations.map((dur) => (
+                    <option key={dur} value={dur}>{dur}</option>
+                  ))}
                 </select>
               </div>
-
-              {/* City Tour - Car Selection */}
-              <div className="flex flex-col">
-                <label className="text-white text-xs font-semibold mb-0.5">City Tour - Select Car</label>
-                <select
-                  value={carType}
-                  onChange={(e) => {
-                    setCarType(e.target.value);
-                    if (e.target.value !== 'Other') setCustomCar('');
-                  }}
-                  className="bg-white/20 border border-white/30 text-black rounded-lg px-2 py-1.5 focus:outline-none focus:border-yellow-400 focus:bg-white/30 transition-all duration-300 placeholder-white/50 text-xs"
-                >
-                  <option value="">Select Car...</option>
-                  <option value="Innova">Innova</option>
-                  <option value="Swift">Swift</option>
-                  <option value="Ertiga">Ertiga</option>
-                  <option value="XUV">XUV</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-
-              {/* Custom Car Input - Shows when Other is selected */}
-              {carType === 'Other' && (
-                <div className="flex flex-col">
-                  <label className="text-white text-xs font-semibold mb-0.5">Enter Your Car</label>
-                  <input
-                    type="text"
-                    value={customCar}
-                    onChange={(e) => setCustomCar(e.target.value)}
-                    placeholder="Enter car name..."
-                    className="bg-white/20 border border-white/30 text-white rounded-lg px-2 py-1.5 focus:outline-none focus:border-yellow-400 focus:bg-white/30 transition-all duration-300 placeholder-white/50 text-xs"
-                  />
-                </div>
-              )}
 
               {/* Search Button */}
               <button

@@ -16,13 +16,13 @@ export const STORAGE_BUCKET_ID = '68cbee510018bf68f24c';
 export const BANNERS_COLLECTION_ID = 'banners';
 
 // Type for creating packages (excluding Appwrite document properties)
-type CreatePackageData = Omit<Pick<Package, 'title' | 'subtitle' | 'duration' | 'category' | 'imageId' | 'description' | 'whatsIncluded' | 'section'>, 'price'> & {
+type CreatePackageData = Omit<Pick<Package, 'title' | 'subtitle' | 'duration' | 'category' | 'imageId' | 'description' | 'whatsIncluded' | 'itinerary' | 'section'>, 'price'> & {
   price: number | string;
   imageIds?: string[];
 };
 
 // Type for creating categories (excluding Appwrite document properties)
-type CreateCategoryData = Pick<Category, 'name' | 'description' | 'imageId'>;
+type CreateCategoryData = Pick<Category, 'name' | 'description' | 'imageId' | 'subtitle' | 'price' | 'duration' | 'whatsIncluded'>;
 
 type BannerData = Pick<Banner, 'title' | 'subtitle' | 'ctaLabel' | 'backgroundImageId'>;
 

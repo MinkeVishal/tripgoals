@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Upload, Plus, Trash2 } from 'lucide-react';
 import { Formik, Form, Field } from 'formik';
 import * as z from 'zod';
@@ -38,6 +38,7 @@ export default function PackageForm({ package: editPackage, categories, onClose 
     editPackage?.imageIds || (editPackage?.imageId ? [editPackage.imageId] : [])
   );
   const [whatsIncluded, setWhatsIncluded] = useState<string[]>(editPackage?.whatsIncluded || ['']);
+  const [itinerary, setItinerary] = useState<string[]>(editPackage?.itinerary || ['']);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -77,6 +78,35 @@ export default function PackageForm({ package: editPackage, categories, onClose 
     setWhatsIncluded(whatsIncluded.filter((_, i) => i !== index));
   };
 
+  const addItineraryItem = () => {
+    setItinerary([...itinerary, '']);
+  };
+
+  const updateItineraryItem = (index: number, value: string) => {
+    const updated = [...itinerary];
+    updated[index] = value;
+    setItinerary(updated);
+  };
+
+  const removeItineraryItem = (index: number) => {
+    setItinerary(itinerary.filter((_, i) => i !== index));
+  };
+
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [isCustomSection, setIsCustomSection] = useState(false);
+
+  // Initialize custom state based on whether the current values are in the standard lists
+  useEffect(() => {
+    if (editPackage) {
+      if (editPackage.category && !categories.some(c => c.name === editPackage.category)) {
+        setIsCustomCategory(true);
+      }
+      if (editPackage.section && !['popular', 'special', 'other'].includes(editPackage.section)) {
+        setIsCustomSection(true);
+      }
+    }
+  }, [editPackage, categories]);
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -100,7 +130,7 @@ export default function PackageForm({ package: editPackage, categories, onClose 
             price: editPackage?.price || '',
             category: editPackage?.category || '',
             description: editPackage?.description || '',
-            section: editPackage?.section || 'other' as const,
+            section: editPackage?.section || 'other',
           }}
           validate={(values) => {
             try {
@@ -138,12 +168,18 @@ export default function PackageForm({ package: editPackage, categories, onClose 
                 return;
               }
 
-              const packageData = {
-                ...values,
-                price: parseInt(String(values.price)) || 0,
+              const packageData: Record<string, any> = {
+                title: values.title,
+                subtitle: values.subtitle,
+                duration: values.duration,
+                category: values.category,
+                description: values.description,
+                section: values.section,
+                price: Number(values.price) || 0,
                 imageId: allImageIds[0], // Primary image
                 imageIds: allImageIds, // All images for carousel
                 whatsIncluded: whatsIncluded.filter(item => item.trim() !== ''),
+                itinerary: itinerary.filter(item => item.trim() !== ''),
               };
 
               const dataToSend = packageData;
@@ -265,6 +301,7 @@ export default function PackageForm({ package: editPackage, categories, onClose 
                     <p className="text-red-500 text-sm mt-1">{errors.price}</p>
                   )}
                 </div>
+
               </div>
 
               <div>
@@ -283,18 +320,50 @@ export default function PackageForm({ package: editPackage, categories, onClose 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                  <Field
-                    as="select"
-                    name="category"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select a category</option>
-                    {categories.map((category) => (
-                      <option key={category.$id} value={category.name}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </Field>
+                  {!isCustomCategory ? (
+                    <div className="flex gap-2">
+                      <Field
+                        as="select"
+                        name="category"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                          const value = e.target.value;
+                          if (value === '__other__') {
+                            setIsCustomCategory(true);
+                            setFieldValue('category', '');
+                          } else {
+                            setFieldValue('category', value);
+                          }
+                        }}
+                      >
+                        <option value="">Select a category</option>
+                        {categories.map((category) => (
+                          <option key={category.$id} value={category.name}>
+                            {category.name}
+                          </option>
+                        ))}
+                        <option value="__other__">Other (Add New)</option>
+                      </Field>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Field
+                        name="category"
+                        type="text"
+                        placeholder="Enter custom category"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setIsCustomCategory(false)}
+                        className="px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                        title="Back to list"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
+                  )}
                   {errors.category && touched.category && (
                     <p className="text-red-500 text-sm mt-1">{errors.category}</p>
                   )}
@@ -302,15 +371,47 @@ export default function PackageForm({ package: editPackage, categories, onClose 
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Section</label>
-                  <Field
-                    as="select"
-                    name="section"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="other">Other</option>
-                    <option value="popular">Popular</option>
-                    <option value="special">Special</option>
-                  </Field>
+                  {!isCustomSection ? (
+                    <div className="flex gap-2">
+                      <Field
+                        as="select"
+                        name="section"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                          const value = e.target.value;
+                          if (value === '__other__') {
+                            setIsCustomSection(true);
+                            setFieldValue('section', '');
+                          } else {
+                            setFieldValue('section', value);
+                          }
+                        }}
+                      >
+                        <option value="other">Other</option>
+                        <option value="popular">Popular</option>
+                        <option value="special">Special</option>
+                        <option value="__other__">Add Custom Section...</option>
+                      </Field>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Field
+                        name="section"
+                        type="text"
+                        placeholder="Enter custom section"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setIsCustomSection(false)}
+                        className="px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                        title="Back to list"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -326,6 +427,42 @@ export default function PackageForm({ package: editPackage, categories, onClose 
                 {errors.description && touched.description && (
                   <p className="text-red-500 text-sm mt-1">{errors.description}</p>
                 )}
+              </div>
+
+              {/* Itinerary */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Itinerary (Day by Day)</label>
+                <div className="space-y-2">
+                  {itinerary.map((item, index) => (
+                    <div key={index} className="flex space-x-2">
+                      <div className="flex items-center bg-blue-100 px-3 rounded-lg">
+                        <span className="text-sm font-medium text-blue-600">Day {index + 1}</span>
+                      </div>
+                      <input
+                        type="text"
+                        value={item}
+                        onChange={(e) => updateItineraryItem(index, e.target.value)}
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder={`Enter Day ${index + 1} itinerary details`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeItineraryItem(index)}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={addItineraryItem}
+                    className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Add Day</span>
+                  </button>
+                </div>
               </div>
 
               {/* What's Included */}

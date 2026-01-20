@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Package, Category, AdminAuthState } from '@/types';
-import { getPackages, getCategories } from '@/lib/appwrite';
+import { Package, Category, AdminAuthState, User } from '@/types';
+import { getPackages, getCategories, getUsers } from '@/lib/appwrite';
 import { BarChart3, Package as PackageIcon, Tag, Users } from 'lucide-react';
 import AdminAuth from '@/components/admin/AdminAuth';
 
@@ -12,6 +12,7 @@ export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [packages, setPackages] = useState<Package[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,13 +32,15 @@ export default function AdminDashboard() {
     if (isAuthenticated) {
       const fetchData = async () => {
         try {
-          const [packagesResponse, categoriesResponse] = await Promise.all([
+          const [packagesResponse, categoriesResponse, usersResponse] = await Promise.all([
             getPackages(),
-            getCategories()
+            getCategories(),
+            getUsers()
           ]);
-          
+
           setPackages(packagesResponse.documents as Package[]);
           setCategories(categoriesResponse.documents as Category[]);
+          setUsers(usersResponse.documents as User[]);
         } catch (error) {
           console.error('Error fetching data:', error);
         } finally {
@@ -57,7 +60,8 @@ export default function AdminDashboard() {
     totalPackages: packages.length,
     popularPackages: packages.filter(p => p.section === 'popular').length,
     specialPackages: packages.filter(p => p.section === 'special').length,
-    totalCategories: categories.length
+    totalCategories: categories.length,
+    totalUsers: users.length
   };
 
   const handleLogout = () => {
@@ -74,7 +78,7 @@ export default function AdminDashboard() {
             <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
             <p className="text-gray-600 mt-2">Manage your travel packages and categories</p>
           </div>
-          <button 
+          <button
             onClick={handleLogout}
             className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
           >
@@ -83,7 +87,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center">
               <div className="p-3 bg-blue-100 rounded-full">
@@ -111,7 +115,7 @@ export default function AdminDashboard() {
           <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center">
               <div className="p-3 bg-orange-100 rounded-full">
-                <Users className="h-6 w-6 text-orange-600" />
+                <Tag className="h-6 w-6 text-orange-600" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Special Offers</p>
@@ -131,16 +135,28 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
+
+          <div className="bg-white rounded-xl shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push('/admin/users')}>
+            <div className="flex items-center">
+              <div className="p-3 bg-indigo-100 rounded-full">
+                <Users className="h-6 w-6 text-indigo-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Total Users</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalUsers}</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Package Management</h2>
             <p className="text-gray-600 mb-4">Create, edit, and manage your travel packages</p>
             <button
               onClick={() => router.push('/admin/packages')}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors w-full"
             >
               Manage Packages
             </button>
@@ -151,7 +167,7 @@ export default function AdminDashboard() {
             <p className="text-gray-600 mb-4">Organize packages into categories</p>
             <button
               onClick={() => router.push('/admin/categories')}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors w-full"
             >
               Manage Categories
             </button>
@@ -162,9 +178,20 @@ export default function AdminDashboard() {
             <p className="text-gray-600 mb-4">Edit the home banner title, subtitle, CTA, and background</p>
             <button
               onClick={() => router.push('/admin/banner')}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors w-full"
             >
               Manage Banner
+            </button>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">User Management</h2>
+            <p className="text-gray-600 mb-4">View and manage registered users</p>
+            <button
+              onClick={() => router.push('/admin/users')}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors w-full"
+            >
+              Manage Users
             </button>
           </div>
         </div>
