@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Package, Category, AdminAuthState, User } from '@/types';
 import { getPackages, getCategories, getUsers } from '@/lib/appwrite';
-import { BarChart3, Package as PackageIcon, Tag, Users } from 'lucide-react';
+import { BarChart3, Package as PackageIcon, Tag, Users, Compass } from 'lucide-react';
 import AdminAuth from '@/components/admin/AdminAuth';
 
 export default function AdminDashboard() {
@@ -60,6 +60,7 @@ export default function AdminDashboard() {
     totalPackages: packages.length,
     popularPackages: packages.filter(p => p.section === 'popular').length,
     specialPackages: packages.filter(p => p.section === 'special').length,
+    adventurePackages: packages.filter(p => p.section === 'adventure').length,
     totalCategories: categories.length,
     totalUsers: users.length
   };
@@ -126,6 +127,18 @@ export default function AdminDashboard() {
 
           <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center">
+              <div className="p-3 bg-red-100 rounded-full">
+                <Compass className="h-6 w-6 text-red-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Adventure</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.adventurePackages}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="flex items-center">
               <div className="p-3 bg-purple-100 rounded-full">
                 <Tag className="h-6 w-6 text-purple-600" />
               </div>
@@ -150,46 +163,57 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          <div className="bg-white rounded-xl shadow-md p-6 flex flex-col h-full">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Package Management</h2>
-            <p className="text-gray-600 mb-4">Create, edit, and manage your travel packages</p>
+            <p className="text-gray-600 mb-4 flex-1">Create, edit, and manage your travel packages</p>
             <button
               onClick={() => router.push('/admin/packages')}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors w-full"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors w-full mt-auto"
             >
               Manage Packages
             </button>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md p-6 flex flex-col h-full">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Adventure Management</h2>
+            <p className="text-gray-600 mb-4 flex-1">Create and manage adventure activities</p>
+            <button
+              onClick={() => router.push('/admin/adventure')}
+              className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors w-full mt-auto"
+            >
+              Manage Adventures
+            </button>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-md p-6 flex flex-col h-full">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Category Management</h2>
-            <p className="text-gray-600 mb-4">Organize packages into categories</p>
+            <p className="text-gray-600 mb-4 flex-1">Organize packages into categories</p>
             <button
               onClick={() => router.push('/admin/categories')}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors w-full"
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors w-full mt-auto"
             >
               Manage Categories
             </button>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md p-6 flex flex-col h-full">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Banner Management</h2>
-            <p className="text-gray-600 mb-4">Edit the home banner title, subtitle, CTA, and background</p>
+            <p className="text-gray-600 mb-4 flex-1">Edit home banner title, subtitle, and background</p>
             <button
               onClick={() => router.push('/admin/banner')}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors w-full"
+              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors w-full mt-auto"
             >
               Manage Banner
             </button>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md p-6 flex flex-col h-full">
             <h2 className="text-xl font-bold text-gray-900 mb-4">User Management</h2>
-            <p className="text-gray-600 mb-4">View and manage registered users</p>
+            <p className="text-gray-600 mb-4 flex-1">View and manage registered users</p>
             <button
               onClick={() => router.push('/admin/users')}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors w-full"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors w-full mt-auto"
             >
               Manage Users
             </button>

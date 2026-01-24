@@ -16,7 +16,7 @@ const packageSchema = z.object({
   price: z.number().min(0, 'Price must be at least 0'),
   category: z.string().min(1, 'Category is required'),
   description: z.string().min(1, 'Description is required'),
-  section: z.enum(['popular', 'special', 'other']),
+  section: z.enum(['popular', 'special', 'adventure', 'other']),
 });
 
 interface PackageFormProps {
@@ -39,6 +39,46 @@ export default function PackageForm({ package: editPackage, categories, onClose 
   );
   const [whatsIncluded, setWhatsIncluded] = useState<string[]>(editPackage?.whatsIncluded || ['']);
   const [itinerary, setItinerary] = useState<string[]>(editPackage?.itinerary || ['']);
+  // Amenities stored as "icon|name" strings
+  const [packageAmenities, setPackageAmenities] = useState<{ icon: string, name: string }[]>(
+    editPackage?.amenityIds?.map(a => {
+      const [icon, name] = a.split('|');
+      return { icon: icon || '', name: name || '' };
+    }) || []
+  );
+
+  // Common FontAwesome icons for travel amenities
+  const commonIcons = [
+    { value: 'fas fa-utensils', label: 'Meals' },
+    { value: 'fas fa-car', label: 'Car' },
+    { value: 'fas fa-hotel', label: 'Hotel' },
+    { value: 'fas fa-bed', label: 'Stay' },
+    { value: 'fas fa-plane', label: 'Flight' },
+    { value: 'fas fa-train', label: 'Train' },
+    { value: 'fas fa-bus', label: 'Bus' },
+    { value: 'fas fa-camera', label: 'Photo' },
+    { value: 'fas fa-map-marked-alt', label: 'Guide' },
+    { value: 'fas fa-wifi', label: 'WiFi' },
+    { value: 'fas fa-swimming-pool', label: 'Pool' },
+    { value: 'fas fa-spa', label: 'Spa' },
+    { value: 'fas fa-hiking', label: 'Trek' },
+    { value: 'fas fa-umbrella-beach', label: 'Beach' },
+    { value: 'fas fa-coffee', label: 'Breakfast' },
+  ];
+
+  const addAmenity = () => {
+    setPackageAmenities([...packageAmenities, { icon: '', name: '' }]);
+  };
+
+  const updateAmenity = (index: number, field: 'icon' | 'name', value: string) => {
+    const updated = [...packageAmenities];
+    updated[index][field] = value;
+    setPackageAmenities(updated);
+  };
+
+  const removeAmenity = (index: number) => {
+    setPackageAmenities(packageAmenities.filter((_, i) => i !== index));
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -101,7 +141,7 @@ export default function PackageForm({ package: editPackage, categories, onClose 
       if (editPackage.category && !categories.some(c => c.name === editPackage.category)) {
         setIsCustomCategory(true);
       }
-      if (editPackage.section && !['popular', 'special', 'other'].includes(editPackage.section)) {
+      if (editPackage.section && !['popular', 'special', 'adventure', 'other'].includes(editPackage.section)) {
         setIsCustomSection(true);
       }
     }
@@ -180,11 +220,16 @@ export default function PackageForm({ package: editPackage, categories, onClose 
                 imageIds: allImageIds, // All images for carousel
                 whatsIncluded: whatsIncluded.filter(item => item.trim() !== ''),
                 itinerary: itinerary.filter(item => item.trim() !== ''),
+                amenityIds: packageAmenities.filter(a => a.icon && a.name).map(a => `${a.icon}|${a.name}`),
               };
+
+              // Debug: Log what we're sending
+              console.log('Saving packageAmenities:', packageAmenities);
+              console.log('Saving amenityIds:', packageData.amenityIds);
 
               const dataToSend = packageData;
 
-              if (editPackage) {
+              if (editPackage?.$id) {
                 await updatePackage(editPackage.$id, dataToSend);
                 toast.success('Package updated successfully');
                 window.dispatchEvent(new Event('packageUpdated'));
@@ -390,6 +435,7 @@ export default function PackageForm({ package: editPackage, categories, onClose 
                         <option value="other">Other</option>
                         <option value="popular">Popular</option>
                         <option value="special">Special</option>
+                        <option value="adventure">Adventure</option>
                         <option value="__other__">Add Custom Section...</option>
                       </Field>
                     </div>
@@ -497,6 +543,51 @@ export default function PackageForm({ package: editPackage, categories, onClose 
                   </button>
                 </div>
               </div>
+
+              {/* Amenities */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Amenities (Icons on Package Card)</label>
+                <div className="space-y-2">
+                  {packageAmenities.map((amenity, index) => (
+                    <div key={index} className="flex space-x-2 items-center">
+                      <select
+                        value={amenity.icon}
+                        onChange={(e) => updateAmenity(index, 'icon', e.target.value)}
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="">Select icon...</option>
+                        {commonIcons.map((icon) => (
+                          <option key={icon.value} value={icon.value}>{icon.label}</option>
+                        ))}
+                      </select>
+                      {amenity.icon && <i className={`${amenity.icon} text-yellow-500 text-lg`}></i>}
+                      <input
+                        type="text"
+                        value={amenity.name}
+                        onChange={(e) => updateAmenity(index, 'name', e.target.value)}
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Amenity name (e.g., Meals Included)"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeAmenity(index)}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={addAmenity}
+                    className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Add Amenity</span>
+                  </button>
+                </div>
+              </div>
+
 
               {/* Form Actions */}
               <div className="flex space-x-4 pt-6 border-t border-gray-200">

@@ -11,7 +11,7 @@ interface CategoryCardProps {
 
 export default function CategoryCard({ category }: CategoryCardProps) {
   return (
-    <Link href={`/packages?category=${category.name}`}>
+    <Link href={`/category/${encodeURIComponent(category.name)}`}>
       <div className="
         min-w-[280px] w-[280px] h-[380px] 
         bg-white rounded-xl overflow-hidden shadow-lg 
@@ -44,30 +44,28 @@ export default function CategoryCard({ category }: CategoryCardProps) {
         </div>
 
         {/* Content Section */}
-        <div className="p-5">
+        <div className="p-5 flex flex-col flex-1">
           <div className="flex justify-between items-start mb-2">
             <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1">
               {category.name}
             </h3>
-            {category.price && (
-              <div className="flex items-center text-green-600 font-bold bg-green-50 px-2 py-1 rounded-lg">
-                <IndianRupee size={14} />
-                <span className="text-sm">{category.price}</span>
-              </div>
-            )}
+            <div className="flex items-center text-green-600 font-bold bg-green-50 px-2 py-1 rounded-lg">
+              <IndianRupee size={14} />
+              <span className="text-sm">{category.price || 'View'}</span>
+            </div>
           </div>
 
           <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-2">
             {category.description}
           </p>
 
-          <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
+          <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between">
             <span className="text-xs text-gray-500 font-medium uppercase tracking-wider">
-              Explore
+              View Packages
             </span>
-            <button className="bg-blue-600 group-hover:bg-blue-700 text-white p-2 rounded-full transition-colors">
+            <div className="bg-blue-600 group-hover:bg-blue-700 text-white p-2 rounded-full transition-colors">
               <ArrowRight size={16} />
-            </button>
+            </div>
           </div>
         </div>
       </div>

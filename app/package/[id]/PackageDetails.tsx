@@ -29,6 +29,27 @@ export default function PackageDetails() {
     fetchPackage();
   }, [params.id]);
 
+  // Auto-slideshow for images (starts after 3 seconds)
+  useEffect(() => {
+    if (!packageData) return;
+
+    const images = packageData.imageIds?.length ? packageData.imageIds : (packageData.imageId ? [packageData.imageId] : []);
+    if (images.length <= 1) return;
+
+    let intervalId: NodeJS.Timeout;
+
+    // Wait 3 seconds before starting slideshow to show first image
+    const timeoutId = setTimeout(() => {
+      intervalId = setInterval(() => {
+        setCurrentImageIndex((prev) => (prev + 1) % images.length);
+      }, 2500); // Change image every 2.5 seconds
+    }, 3000);
+
+    return () => {
+      clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [packageData]);
   const bookPackage = () => {
     if (!packageData) return;
 
@@ -146,12 +167,13 @@ export default function PackageDetails() {
 
             {/* Package Info */}
             <div className="p-8">
-              {/* Title row with CTA buttons on right */}
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
+              {/* Row 1: Title and CTA Buttons */}
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-2">
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-800 flex-1">
                   {packageData.title}
                 </h1>
-                {/* CTA Buttons */}
+
+                {/* CTA Buttons - Top Right */}
                 <div className="flex flex-wrap gap-2 flex-shrink-0">
                   <button
                     onClick={bookPackage}
@@ -175,9 +197,31 @@ export default function PackageDetails() {
                   </button>
                 </div>
               </div>
-              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-                {packageData.subtitle}
-              </p>
+
+              {/* Row 2: Subtitle (Left) and Amenities (Right) */}
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                {/* Subtitle - Left */}
+                <p className="text-lg text-gray-600 leading-relaxed flex-1 pr-4">
+                  {packageData.subtitle}
+                </p>
+
+                {/* Amenities - Right */}
+                {packageData.amenityIds && packageData.amenityIds.length > 0 && (
+                  <div className="flex flex-wrap gap-2 justify-start md:justify-end flex-shrink-0 max-w-md">
+                    {packageData.amenityIds.map((amenityStr, index) => {
+                      const [icon, name] = amenityStr.split('|');
+                      if (!icon || !name) return null;
+                      return (
+                        <div key={index} className="flex items-center gap-1.5 bg-yellow-50 border border-yellow-200 px-3 py-1.5 rounded-full">
+                          <i className={`${icon} text-yellow-600 text-sm`}></i>
+                          <span className="text-xs font-medium text-gray-700">{name}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
               <div className="flex flex-wrap gap-6">
                 <div className="flex items-center space-x-2 text-blue-600 font-medium">
                   <i className="fas fa-clock"></i>

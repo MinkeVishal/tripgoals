@@ -13,6 +13,12 @@ export interface Package extends Models.Document {
   section: string;
   price: string;
   createdAt: string;
+  amenityIds?: string[]; // Amenity icons associated with this package
+}
+
+export interface Amenity extends Models.Document {
+  name: string;
+  icon: string; // FontAwesome icon class (e.g., 'fas fa-utensils')
 }
 
 export interface Category extends Models.Document {

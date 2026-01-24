@@ -87,3 +87,28 @@ export const uploadImage = async (file: File) => {
 export const deleteImage = async (imageId: string) => {
   return await adminStorage.deleteFile(STORAGE_BUCKET_ID, imageId);
 };
+
+// Amenity CRUD operations
+export const AMENITIES_COLLECTION_ID = 'amenities';
+
+type CreateAmenityData = {
+  name: string;
+  icon: string;
+};
+
+export const createAmenity = async (amenityData: CreateAmenityData) => {
+  return await adminDatabases.createDocument(
+    DATABASE_ID,
+    AMENITIES_COLLECTION_ID,
+    ID.unique(),
+    amenityData
+  );
+};
+
+export const updateAmenity = async (id: string, amenityData: Partial<CreateAmenityData>) => {
+  return await adminDatabases.updateDocument(DATABASE_ID, AMENITIES_COLLECTION_ID, id, amenityData);
+};
+
+export const deleteAmenity = async (id: string) => {
+  return await adminDatabases.deleteDocument(DATABASE_ID, AMENITIES_COLLECTION_ID, id);
+};

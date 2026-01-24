@@ -1,7 +1,7 @@
 "use client";
 
 import { Client, Databases, Storage, Query, Models } from 'appwrite';
-import { Package, Category, Banner, User } from '@/types';
+import { Package, Category, Banner, User, Amenity } from '@/types';
 
 const client = new Client()
   .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
@@ -15,6 +15,7 @@ export const PACKAGES_COLLECTION_ID = 'packages';
 export const CATEGORIES_COLLECTION_ID = 'categories';
 export const STORAGE_BUCKET_ID = '68cbee510018bf68f24c';
 export const BANNERS_COLLECTION_ID = 'banners';
+export const AMENITIES_COLLECTION_ID = 'amenities';
 
 // Sample data for packages
 export const samplePackages = [
@@ -251,6 +252,29 @@ export const verifyUser = async (email: string, password: string): Promise<User 
   } catch (error) {
     console.error('Error verifying user:', error);
     return null;
+  }
+};
+
+// Amenity operations
+export const getAmenities = async (): Promise<Models.DocumentList<Amenity>> => {
+  try {
+    return await databases.listDocuments(DATABASE_ID, AMENITIES_COLLECTION_ID) as Models.DocumentList<Amenity>;
+  } catch (error) {
+    console.error('Error fetching amenities:', error);
+    return { total: 0, documents: [] } as Models.DocumentList<Amenity>;
+  }
+};
+
+export const getAmenitiesByIds = async (ids: string[]): Promise<Amenity[]> => {
+  if (!ids || ids.length === 0) return [];
+  try {
+    const response = await databases.listDocuments(DATABASE_ID, AMENITIES_COLLECTION_ID, [
+      Query.equal('$id', ids)
+    ]);
+    return response.documents as unknown as Amenity[];
+  } catch (error) {
+    console.error('Error fetching amenities by IDs:', error);
+    return [];
   }
 };
 

@@ -8,7 +8,8 @@ import { useRouter } from 'next/navigation';
 
 export default function Hero() {
   const [banner, setBanner] = useState<Banner | null>(null);
-  const [destination, setDestination] = useState('');
+  const [fromDestination, setFromDestination] = useState('');
+  const [toDestination, setToDestination] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [duration, setDuration] = useState('');
@@ -93,7 +94,8 @@ export default function Hero() {
   const handleSearch = (e: FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
-    if (destination) params.append('destination', destination);
+    if (fromDestination) params.append('from', fromDestination);
+    if (toDestination) params.append('to', toDestination);
     if (fromDate) params.append('fromDate', fromDate);
     if (toDate) params.append('toDate', toDate);
     if (duration) params.append('duration', duration);
@@ -169,19 +171,19 @@ export default function Hero() {
                 <div className="flex flex-col flex-1">
                   <label className="text-white text-xs font-semibold mb-0.5">From</label>
                   <select
-                    value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
+                    value={fromDestination}
+                    onChange={(e) => setFromDestination(e.target.value)}
                     className="bg-white/20 border border-white/30 text-black rounded-lg px-2 py-1.5 focus:outline-none focus:border-yellow-400 focus:bg-white/30 transition-all duration-300 placeholder-white/50 text-xs w-full"
                   >
                     <option value="">Select...</option>
-                    <option value="Goa">Goa</option>
-                    <option value="Kerala">Kerala</option>
-                    <option value="Rajasthan">Rajasthan</option>
-                    <option value="Kashmir">Kashmir</option>
-                    <option value="Himachal">Himachal Pradesh</option>
-                    <option value="Tamil Nadu">Tamil Nadu</option>
-                    <option value="Uttarakhand">Uttarakhand</option>
-                    <option value="West Bengal">West Bengal</option>
+                    <option value="Delhi">Delhi</option>
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="Bangalore">Bangalore</option>
+                    <option value="Chennai">Chennai</option>
+                    <option value="Kolkata">Kolkata</option>
+                    <option value="Hyderabad">Hyderabad</option>
+                    <option value="Ahmedabad">Ahmedabad</option>
+                    <option value="Pune">Pune</option>
                   </select>
                 </div>
 
@@ -190,8 +192,8 @@ export default function Hero() {
                 <div className="flex flex-col flex-1">
                   <label className="text-white text-xs font-semibold mb-0.5">Where</label>
                   <select
-                    value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
+                    value={toDestination}
+                    onChange={(e) => setToDestination(e.target.value)}
                     className="bg-white/20 border border-white/30 text-black rounded-lg px-2 py-1.5 focus:outline-none focus:border-yellow-400 focus:bg-white/30 transition-all duration-300 placeholder-white/50 text-xs w-full"
                   >
                     <option value="">Select...</option>

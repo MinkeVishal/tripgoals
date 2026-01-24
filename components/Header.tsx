@@ -70,7 +70,7 @@ export default function Header() {
         : 'bg-white/10 backdrop-blur-sm'
         }`}>
         <div className="max-w-7xl mx-auto px-5">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex items-center h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3">
               <Image
@@ -85,7 +85,7 @@ export default function Header() {
             </Link>
 
             {/* Desktop Navigation */}
-            <ul className="hidden md:flex items-center space-x-9">
+            <ul className="hidden md:flex items-center space-x-6 ml-8 lg:ml-12">
               <li>
                 <Link
                   href="/"
@@ -106,6 +106,24 @@ export default function Header() {
                   All Packages
                   <span className={`absolute bottom-0 left-0 h-0.5 bg-yellow-400 transition-all duration-300 ${pathname === '/packages' ? 'w-full' : 'w-0 hover:w-full'
                     }`}></span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/categories"
+                  className={`text-white font-medium text-sm transition-all duration-300 hover:text-yellow-400 hover:-translate-y-0.5 relative ${pathname === '/categories' ? 'text-yellow-400' : ''}`}
+                >
+                  Categories
+                  <span className={`absolute bottom-0 left-0 h-0.5 bg-yellow-400 transition-all duration-300 ${pathname === '/categories' ? 'w-full' : 'w-0 hover:w-full'}`}></span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/adventure"
+                  className={`text-white font-medium text-sm transition-all duration-300 hover:text-yellow-400 hover:-translate-y-0.5 relative ${pathname === '/adventure' ? 'text-yellow-400' : ''}`}
+                >
+                  Adventure
+                  <span className={`absolute bottom-0 left-0 h-0.5 bg-yellow-400 transition-all duration-300 ${pathname === '/adventure' ? 'w-full' : 'w-0 hover:w-full'}`}></span>
                 </Link>
               </li>
               <li>
@@ -132,94 +150,97 @@ export default function Header() {
               </li>
             </ul>
 
-            {/* Desktop Search */}
-            <form
-              onSubmit={handleSearch}
-              className="hidden md:flex items-center bg-white/15 backdrop-blur-md border border-white/20 rounded-full px-3 py-1 mr-4 max-w-xs w-full"
-            >
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search packages"
-                className="bg-transparent flex-1 text-white text-sm placeholder-white/60 focus:outline-none"
-              />
-              <button
-                type="submit"
-                className="text-white hover:text-yellow-300 transition-colors"
-                aria-label="Search packages"
+            {/* Right Side Actions */}
+            <div className="hidden md:flex items-center ml-auto gap-4">
+              {/* Desktop Search */}
+              <form
+                onSubmit={handleSearch}
+                className="flex items-center bg-white/15 backdrop-blur-md border border-white/20 rounded-full px-3 py-1 max-w-[200px] w-full"
               >
-                <i className="fas fa-search"></i>
-              </button>
-            </form>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search packages"
+                  className="bg-transparent flex-1 w-full min-w-0 text-white text-sm placeholder-white/60 focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  className="text-white hover:text-yellow-300 transition-colors flex-shrink-0 ml-2"
+                  aria-label="Search packages"
+                >
+                  <i className="fas fa-search"></i>
+                </button>
+              </form>
 
-            {/* Auth Section */}
-            <div className="flex items-center space-x-2">
-              {currentUser ? (
-                <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full">
-                  <Image
-                    src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=50&h=50&fit=crop"
-                    alt="Profile"
-                    width={20}
-                    height={20}
-                    className="rounded-full object-cover"
-                  />
-                  <span className="text-white text-sm font-medium">{currentUser.name}</span>
+              {/* Auth Section */}
+              <div className="flex items-center space-x-2">
+                {currentUser ? (
+                  <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full">
+                    <Image
+                      src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=50&h=50&fit=crop"
+                      alt="Profile"
+                      width={20}
+                      height={20}
+                      className="rounded-full object-cover"
+                    />
+                    <span className="text-white text-sm font-medium">{currentUser.name}</span>
+                    <button
+                      onClick={logout}
+                      className="text-white hover:text-yellow-400 transition-colors"
+                    >
+                      <i className="fas fa-sign-out-alt"></i>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-3">
+                    <button
+                      suppressHydrationWarning
+                      onClick={showLoginModal}
+                      className="bg-white/20 border border-white/30 text-white px-4 py-1.5 rounded-full text-xs font-medium hover:bg-white/30 transition-all duration-300 backdrop-blur-md"
+                    >
+                      Login
+                    </button>
+                    <button
+                      suppressHydrationWarning
+                      onClick={showSignupModal}
+                      className="bg-gradient-to-r from-yellow-400 to-orange-400 text-black px-4 py-1.5 rounded-full text-xs font-semibold hover:from-orange-400 hover:to-yellow-400 transition-all duration-300 hover:-translate-y-0.5 shadow-lg hover:shadow-yellow-400/30"
+                    >
+                      Sign Up
+                    </button>
+                    <button
+                      suppressHydrationWarning
+                      onClick={() => router.push('/admin')}
+                      className="bg-red-600/20 border border-red-400/30 text-red-400 px-4 py-1.5 rounded-full text-xs font-medium hover:bg-red-600/30 transition-all duration-300 backdrop-blur-md"
+                    >
+                      <i className="fas fa-lock mr-2"></i>Admin
+                    </button>
+                  </div>
+                )}
+
+                {currentUser && (
                   <button
                     onClick={logout}
-                    className="text-white hover:text-yellow-400 transition-colors"
+                    className="relative overflow-hidden px-2 py-1 md:px-3 md:py-1
+                 text-[7px] md:text-xs font-medium text-black
+                 rounded-full shadow-md backdrop-blur-md
+                 bg-gradient-to-r from-yellow-400/90 to-orange-400/90
+                 border border-white/20
+                 hover:scale-105 hover:from-orange-400 hover:to-yellow-400 
+                 hover:shadow-lg transition-all duration-300"
                   >
-                    <i className="fas fa-sign-out-alt"></i>
+                    <span className="relative z-10">Logout</span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-yellow-300/30 to-orange-500/30 blur-lg"></span>
                   </button>
-                </div>
-              ) : (
-                <div className="hidden md:flex items-center space-x-4">
-                  <button
-                    suppressHydrationWarning
-                    onClick={showLoginModal}
-                    className="bg-white/20 border border-white/30 text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-white/30 transition-all duration-300 backdrop-blur-md"
-                  >
-                    <i className="fas fa-sign-in-alt mr-2"></i>Login
-                  </button>
-                  <button
-                    suppressHydrationWarning
-                    onClick={showSignupModal}
-                    className="bg-gradient-to-r from-yellow-400 to-orange-400 text-black px-5 py-2 rounded-full text-sm font-semibold hover:from-orange-400 hover:to-yellow-400 transition-all duration-300 hover:-translate-y-0.5 shadow-lg hover:shadow-yellow-400/30"
-                  >
-                    Sign Up
-                  </button>
-                  <button
-                    suppressHydrationWarning
-                    onClick={() => router.push('/admin')}
-                    className="bg-red-600/20 border border-red-400/30 text-red-400 px-5 py-2 rounded-full text-sm font-medium hover:bg-red-600/30 transition-all duration-300 backdrop-blur-md"
-                  >
-                    <i className="fas fa-lock mr-2"></i>Admin
-                  </button>
-                </div>
-              )}
+                )}
+              </div>
+            </div>
 
-              {currentUser && (
-                <button
-                  onClick={logout}
-                  className="relative overflow-hidden px-2 py-1 md:px-3 md:py-1
-               text-[7px] md:text-xs font-medium text-black
-               rounded-full shadow-md backdrop-blur-md
-               bg-gradient-to-r from-yellow-400/90 to-orange-400/90
-               border border-white/20
-               hover:scale-105 hover:from-orange-400 hover:to-yellow-400 
-               hover:shadow-lg transition-all duration-300"
-                >
-                  <span className="relative z-10">Logout</span>
-                  <span className="absolute inset-0 bg-gradient-to-r from-yellow-300/30 to-orange-500/30 blur-lg"></span>
-                </button>
-              )}
-
-
-
-              {/* Mobile menu button */}
+            {/* Mobile menu button (Outside flex ml-auto group to stay visible on mobile) */}
+            <div className="md:hidden ml-auto">
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="md:hidden flex flex-col space-y-1 p-2"
+                className="flex flex-col space-y-1 p-2"
               >
                 <span className={`w-6 h-0.5 bg-white transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
                 <span className={`w-6 h-0.5 bg-white transition-all duration-300 ${isMenuOpen ? 'opacity-0' : ''}`}></span>
@@ -261,6 +282,20 @@ export default function Header() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   All Packages
+                </Link>
+                <Link
+                  href="/categories"
+                  className="text-white font-medium py-2 hover:text-yellow-400 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Categories
+                </Link>
+                <Link
+                  href="/adventure"
+                  className="text-white font-medium py-2 hover:text-yellow-400 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Adventure
                 </Link>
                 <Link
                   href="/about"

@@ -112,11 +112,11 @@ export default function CategoriesManagement() {
                     className="w-full h-full object-cover"
                   />
                 </div>
-                
+
                 <div className="p-4">
                   <h3 className="font-bold text-gray-900 mb-2">{category.name}</h3>
                   <p className="text-gray-600 text-sm mb-4">{category.description}</p>
-                  
+
                   <div className="flex space-x-2">
                     <button
                       onClick={() => handleEdit(category)}
