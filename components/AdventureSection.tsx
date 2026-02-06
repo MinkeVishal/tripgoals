@@ -162,14 +162,14 @@ export default function AdventureSection() {
                   min-w-[180px] h-[200px] 
                   sm:min-w-[220px] sm:h-[240px] 
                   md:min-w-[260px] md:h-[280px]
-                  bg-white/95 rounded-2xl overflow-hidden shadow-lg transition-all duration-400 cursor-pointer relative flex-shrink-0 hover:-translate-y-2 hover:shadow-xl"
+                  bg-white/95 rounded-2xl overflow-hidden shadow-lg transition-all duration-400 cursor-pointer relative flex-shrink-0 hover:shadow-xl"
                 onClick={() => bookActivity(activity.title, activity.duration, activity.price)}
               >
-                <div className="h-[120px] sm:h-[140px] md:h-[160px] overflow-hidden relative">
+                <div className="h-[120px] sm:h-[140px] md:h-[160px] overflow-hidden relative bg-gray-100">
                   <img
                     src={activity.image}
                     alt={activity.title}
-                    className="w-full h-full object-cover transition-transform duration-400 hover:scale-110"
+                    className="w-full h-full object-cover"
                   />
                 </div>
 
@@ -192,13 +192,13 @@ export default function AdventureSection() {
                     min-w-[180px] h-[200px] 
                     sm:min-w-[220px] sm:h-[240px] 
                     md:min-w-[260px] md:h-[280px]
-                    bg-white/95 rounded-2xl overflow-hidden shadow-lg transition-all duration-400 cursor-pointer relative flex-shrink-0 hover:-translate-y-2 hover:shadow-xl"
+                    bg-white/95 rounded-2xl overflow-hidden shadow-lg transition-all duration-400 cursor-pointer relative flex-shrink-0 hover:shadow-xl"
                 >
-                  <div className="h-[120px] sm:h-[140px] md:h-[160px] overflow-hidden relative">
+                  <div className="h-[120px] sm:h-[140px] md:h-[160px] overflow-hidden relative bg-gray-100">
                     <img
                       src={getImageUrl(pkg.imageIds?.[0] || pkg.imageId)}
                       alt={pkg.title}
-                      className="w-full h-full object-cover transition-transform duration-400 hover:scale-110"
+                      className="w-full h-full object-cover"
                     />
                   </div>
 

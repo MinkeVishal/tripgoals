@@ -30,7 +30,7 @@ export default function CategoriesSection() {
     const container = scrollContainerRef.current;
     if (!container || loading || categories.length === 0) return;
 
-    const scrollAmount = 300; // Card width + gap roughly
+    const scrollAmount = 280; // Card width + gap roughly
 
     const interval = setInterval(() => {
       if (container) {

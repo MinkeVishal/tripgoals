@@ -74,8 +74,7 @@ export default function PackageSection({ title, section, limit = 10 }: PackageSe
     const container = scrollContainerRef.current;
     if (!container || loading || packages.length === 0) return;
 
-    const scrollAmount = 300; // Card width (280) + gap (20) roughly
-    let scrollDirection = 1;
+    const scrollAmount = 280; // Card width + gap roughly
 
     const interval = setInterval(() => {
       if (container) {
@@ -102,7 +101,13 @@ export default function PackageSection({ title, section, limit = 10 }: PackageSe
           <div className="relative overflow-hidden py-1">
             <div className="flex space-x-4 overflow-x-auto hide-scrollbar pb-4 py-4 scroll-smooth" style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="min-w-[280px] h-[360px] bg-white/10 rounded-[25px] animate-pulse flex-shrink-0" style={{ animationDuration: '0.8s' }} />
+                <div key={i} className="min-w-[180px] h-[200px] sm:min-w-[220px] sm:h-[240px] md:min-w-[260px] md:h-[280px] bg-white/10 rounded-2xl animate-pulse flex-shrink-0" style={{ animationDuration: '0.8s' }}>
+                  <div className="h-[120px] sm:h-[140px] md:h-[160px] bg-gray-300/30 rounded-t-2xl"></div>
+                  <div className="p-3 space-y-2">
+                    <div className="h-4 bg-gray-300/30 rounded"></div>
+                    <div className="h-3 bg-gray-300/30 rounded w-2/3 mx-auto"></div>
+                  </div>
+                </div>
               ))}
             </div>
           </div>

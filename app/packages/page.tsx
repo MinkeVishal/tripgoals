@@ -214,7 +214,7 @@ function AllPackagesContent() {
                     className="bg-white/95 rounded-2xl overflow-hidden shadow-lg transition-all duration-300 cursor-pointer relative hover:-translate-y-1 hover:shadow-xl"
                     onClick={() => router.push(`/package/${pkg.$id}`)}
                   >
-                    <div className="h-[200px] overflow-hidden relative">
+                    <div className="aspect-[4/3] overflow-hidden relative">
                       <img
                         src={getImageUrl(pkg.imageIds?.[0] || pkg.imageId)}
                         alt={pkg.title}
