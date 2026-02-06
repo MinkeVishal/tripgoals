@@ -18,16 +18,16 @@ export default function PackageCard({ package: pkg }: PackageCardProps) {
   return (
     <Link href={`/package/${pkg.$id}`}>
       <div className="
-        min-w-[180px] h-[200px]
-        sm:min-w-[220px] sm:h-[240px]
-        md:min-w-[260px] md:h-[280px]
+        min-w-[180px] h-[230px]
+        sm:min-w-[220px] sm:h-[260px]
+        md:min-w-[260px] md:h-[300px]
         bg-white/95 rounded-2xl 
         overflow-hidden shadow-lg transition-all duration-400 cursor-pointer 
         relative flex-shrink-0
         hover:shadow-xl
       ">
         {/* Image */}
-        <div className="h-[120px] sm:h-[140px] md:h-[160px] relative overflow-hidden bg-gray-100">
+        <div className="h-[110px] sm:h-[130px] md:h-[160px] relative overflow-hidden bg-gray-100">
           <img
             src={getImageUrl(pkg.imageIds?.[0] || pkg.imageId)}
             alt={pkg.title}
@@ -36,7 +36,7 @@ export default function PackageCard({ package: pkg }: PackageCardProps) {
         </div>
 
         {/* Text */}
-        <div className="px-3 py-1 bg-white h-[80px] sm:h-[100px] md:h-[120px] flex flex-col overflow-hidden relative">
+        <div className="px-3 py-2 bg-white h-[120px] sm:h-[130px] md:h-[140px] flex flex-col overflow-hidden relative">
           <h3 className="text-xs sm:text-sm font-bold mb-0.5 text-black text-center line-clamp-1">
             {pkg.title}
           </h3>
@@ -45,15 +45,15 @@ export default function PackageCard({ package: pkg }: PackageCardProps) {
               {pkg.subtitle}
             </p>
           )}
-          <p className="text-[10px] text-black/90 text-center mb-0.5">
+          <p className="text-[10px] text-black/90 text-center mb-1">
             {pkg.duration}
           </p>
 
-          {/* Amenity Icons */}
+          {/* Amenity Icons - show all on mobile */}
           {amenities.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-0.5 mb-0.5">
+            <div className="flex flex-wrap justify-center gap-1 mb-2">
               {amenities.slice(0, 3).map((amenity, index) => (
-                <div key={index} className="flex items-center gap-0.5 bg-black/70 px-1 py-0.5 rounded-full">
+                <div key={index} className="flex items-center gap-0.5 bg-black/70 px-1.5 py-0.5 rounded-full">
                   <i className={`${amenity.icon} text-yellow-400 text-[8px]`}></i>
                   <span className="text-[8px] text-white/90 font-medium">{amenity.name}</span>
                 </div>
@@ -62,7 +62,7 @@ export default function PackageCard({ package: pkg }: PackageCardProps) {
           )}
 
           <div className="absolute bottom-2 left-0 right-0 flex justify-center">
-            <span className="bg-gradient-to-r from-yellow-400 to-orange-400 text-black text-[9px] sm:text-[10px] font-semibold px-2 py-1 rounded-full">
+            <span className="bg-gradient-to-r from-yellow-400 to-orange-400 text-black text-[9px] sm:text-[10px] font-semibold px-3 py-1 rounded-full">
               View Details
             </span>
           </div>
