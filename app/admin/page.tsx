@@ -52,6 +52,12 @@ export default function AdminDashboard() {
     }
   }, [isAuthenticated]);
 
+  const handleLogout = () => {
+    localStorage.removeItem('adminAuth');
+    setIsAuthenticated(false);
+    router.push('/');
+  };
+
   if (!isAuthenticated) {
     return <AdminAuth onAuthenticated={() => setIsAuthenticated(true)} />;
   }
@@ -63,12 +69,6 @@ export default function AdminDashboard() {
     adventurePackages: packages.filter(p => p.section === 'adventure').length,
     totalCategories: categories.length,
     totalUsers: users.length
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('adminAuth');
-    setIsAuthenticated(false);
-    router.push('/');
   };
 
   return (
