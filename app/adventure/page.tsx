@@ -104,6 +104,9 @@ function AllAdventureContent() {
     const [dbAdventures, setDbAdventures] = useState<Package[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [durationFilter, setDurationFilter] = useState('');
+    const [priceFilter, setPriceFilter] = useState('');
+    const [activityTypeFilter, setActivityTypeFilter] = useState('');
     const router = useRouter();
 
     useEffect(() => {
@@ -121,16 +124,57 @@ function AllAdventureContent() {
         fetchAdventures();
     }, []);
 
-    // Filter both hardcoded and database adventures
-    const filteredHardcoded = hardcodedAdventures.filter(activity =>
-        activity.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        activity.subtitle.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Helper function to check price range
+    const checkPriceRange = (price: string) => {
+        const numPrice = parseInt(price);
+        switch (priceFilter) {
+            case 'low': return numPrice <= 2000;
+            case 'medium': return numPrice > 2000 && numPrice <= 4000;
+            case 'high': return numPrice > 4000;
+            default: return true;
+        }
+    };
 
-    const filteredDb = dbAdventures.filter(pkg =>
-        pkg.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (pkg.subtitle && pkg.subtitle.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    // Helper function to check duration
+    const checkDuration = (duration: string) => {
+        const durationLower = duration.toLowerCase();
+        switch (durationFilter) {
+            case 'half-day': return durationLower.includes('half') || durationLower.includes('4 hour') || durationLower.includes('3 hour');
+            case 'full-day': return durationLower.includes('1 day') || durationLower.includes('full day') || durationLower.includes('day trip');
+            case 'multi-day': return durationLower.includes('2 day') || durationLower.includes('3 day') || durationLower.includes('night');
+            default: return true;
+        }
+    };
+
+    // Helper function to check activity type
+    const checkActivityType = (title: string) => {
+        const titleLower = title.toLowerCase();
+        switch (activityTypeFilter) {
+            case 'water': return titleLower.includes('rafting') || titleLower.includes('scuba') || titleLower.includes('diving') || titleLower.includes('kayak') || titleLower.includes('water');
+            case 'air': return titleLower.includes('paragliding') || titleLower.includes('bungee') || titleLower.includes('zip') || titleLower.includes('skydiv');
+            case 'land': return titleLower.includes('trek') || titleLower.includes('camping') || titleLower.includes('hiking') || titleLower.includes('climb') || titleLower.includes('safari');
+            default: return true;
+        }
+    };
+
+    // Filter both hardcoded and database adventures
+    const filteredHardcoded = hardcodedAdventures.filter(activity => {
+        const matchesSearch = activity.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            activity.subtitle.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesPrice = checkPriceRange(activity.price);
+        const matchesDuration = checkDuration(activity.duration);
+        const matchesType = checkActivityType(activity.title);
+        return matchesSearch && matchesPrice && matchesDuration && matchesType;
+    });
+
+    const filteredDb = dbAdventures.filter(pkg => {
+        const matchesSearch = pkg.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (pkg.subtitle && pkg.subtitle.toLowerCase().includes(searchTerm.toLowerCase()));
+        const matchesPrice = checkPriceRange(pkg.price);
+        const matchesDuration = checkDuration(pkg.duration);
+        const matchesType = checkActivityType(pkg.title);
+        return matchesSearch && matchesPrice && matchesDuration && matchesType;
+    });
 
     const bookActivity = (title: string, duration: string, price: string) => {
         const whatsappMessage = encodeURIComponent(
@@ -176,17 +220,54 @@ function AllAdventureContent() {
                 {/* Filter Section */}
                 <section className="bg-white/50 py-3 sticky z-10 backdrop-blur-sm">
                     <div className="max-w-7xl mx-auto px-5">
-                        <div className="flex justify-center">
-                            <div className="relative w-full max-w-md">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            {/* Search */}
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                                 <input
                                     type="text"
-                                    placeholder="Search adventures..."
+                                    placeholder="Search..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500"
+                                    className="w-full pl-9 pr-3 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500"
                                 />
                             </div>
+
+                            {/* Price Filter */}
+                            <select
+                                value={priceFilter}
+                                onChange={(e) => setPriceFilter(e.target.value)}
+                                className="w-full px-3 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500"
+                            >
+                                <option value="">All Prices</option>
+                                <option value="low">Budget (≤₹2,000)</option>
+                                <option value="medium">Mid (₹2,000-₹4,000)</option>
+                                <option value="high">Premium (₹4,000+)</option>
+                            </select>
+
+                            {/* Duration Filter */}
+                            <select
+                                value={durationFilter}
+                                onChange={(e) => setDurationFilter(e.target.value)}
+                                className="w-full px-3 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500"
+                            >
+                                <option value="">All Durations</option>
+                                <option value="half-day">Half Day</option>
+                                <option value="full-day">Full Day</option>
+                                <option value="multi-day">Multi-Day</option>
+                            </select>
+
+                            {/* Activity Type Filter */}
+                            <select
+                                value={activityTypeFilter}
+                                onChange={(e) => setActivityTypeFilter(e.target.value)}
+                                className="w-full px-3 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500"
+                            >
+                                <option value="">All Types</option>
+                                <option value="water">Water Sports</option>
+                                <option value="air">Air Adventures</option>
+                                <option value="land">Land Activities</option>
+                            </select>
                         </div>
                     </div>
                 </section>

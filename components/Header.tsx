@@ -13,6 +13,7 @@ export default function Header() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [scrolled, setScrolled] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showAdminDropdown, setShowAdminDropdown] = useState(false);
 
   useEffect(() => {
     const checkAuthStatus = () => {
@@ -208,13 +209,38 @@ export default function Header() {
                     >
                       Sign Up
                     </button>
-                    <button
-                      suppressHydrationWarning
-                      onClick={() => router.push('/admin')}
-                      className="bg-red-600/20 border border-red-400/30 text-red-400 px-4 py-1.5 rounded-full text-xs font-medium hover:bg-red-600/30 transition-all duration-300 backdrop-blur-md"
-                    >
-                      <i className="fas fa-lock mr-2"></i>Admin
-                    </button>
+                    <div className="relative">
+                      <button
+                        suppressHydrationWarning
+                        onClick={() => setShowAdminDropdown(!showAdminDropdown)}
+                        className="bg-red-600/20 border border-red-400/30 text-red-400 px-4 py-1.5 rounded-full text-xs font-medium hover:bg-red-600/30 transition-all duration-300 backdrop-blur-md"
+                      >
+                        <i className="fas fa-lock mr-2"></i>Admin
+                        <i className={`fas fa-chevron-down ml-2 transition-transform ${showAdminDropdown ? 'rotate-180' : ''}`}></i>
+                      </button>
+                      {showAdminDropdown && (
+                        <div className="absolute right-0 mt-2 w-40 bg-white/95 backdrop-blur-md rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50">
+                          <button
+                            onClick={() => {
+                              router.push('/admin');
+                              setShowAdminDropdown(false);
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                          >
+                            <i className="fas fa-user-shield mr-2 text-red-500"></i>Admin
+                          </button>
+                          <button
+                            onClick={() => {
+                              router.push('/admin?role=miniadmin');
+                              setShowAdminDropdown(false);
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                          >
+                            <i className="fas fa-shield-alt mr-2 text-orange-500"></i>Mini Admin
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
 
@@ -313,15 +339,39 @@ export default function Header() {
                 </Link>
                 {!currentUser && (
                   <div className="flex flex-col space-y-2 pt-4 border-t border-white/10">
-                    <button
-                      onClick={() => {
-                        router.push('/admin');
-                        setIsMenuOpen(false);
-                      }}
-                      className="bg-red-600/20 border border-red-400/30 text-red-400 px-4 py-2 rounded-full text-sm font-medium hover:bg-red-600/30 transition-colors"
-                    >
-                      <i className="fas fa-lock mr-2"></i>Admin
-                    </button>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => setShowAdminDropdown(!showAdminDropdown)}
+                        className="w-full bg-red-600/20 border border-red-400/30 text-red-400 px-4 py-2 rounded-full text-sm font-medium hover:bg-red-600/30 transition-colors flex items-center justify-between"
+                      >
+                        <span><i className="fas fa-lock mr-2"></i>Admin</span>
+                        <i className={`fas fa-chevron-down transition-transform ${showAdminDropdown ? 'rotate-180' : ''}`}></i>
+                      </button>
+                      {showAdminDropdown && (
+                        <div className="ml-4 space-y-2">
+                          <button
+                            onClick={() => {
+                              router.push('/admin');
+                              setIsMenuOpen(false);
+                              setShowAdminDropdown(false);
+                            }}
+                            className="w-full bg-red-600/10 border border-red-400/20 text-red-400 px-4 py-2 rounded-full text-sm font-medium hover:bg-red-600/20 transition-colors text-left"
+                          >
+                            <i className="fas fa-user-shield mr-2"></i>Admin
+                          </button>
+                          <button
+                            onClick={() => {
+                              router.push('/admin?role=miniadmin');
+                              setIsMenuOpen(false);
+                              setShowAdminDropdown(false);
+                            }}
+                            className="w-full bg-orange-600/10 border border-orange-400/20 text-orange-400 px-4 py-2 rounded-full text-sm font-medium hover:bg-orange-600/20 transition-colors text-left"
+                          >
+                            <i className="fas fa-shield-alt mr-2"></i>Mini Admin
+                          </button>
+                        </div>
+                      )}
+                    </div>
                     <button
                       onClick={() => {
                         showLoginModal();

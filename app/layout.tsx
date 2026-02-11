@@ -48,7 +48,48 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         {/* Favicon */}
         <link rel="icon" href="/Tripgoal_logo.png" type="image/png" />
+        <link rel="icon" href="/Tripgoal_logo.png" sizes="32x32" type="image/png" />
+        <link rel="icon" href="/Tripgoal_logo.png" sizes="16x16" type="image/png" />
         <link rel="apple-touch-icon" href="/Tripgoal_logo.png" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#f59e0b" />
+        
+        {/* Structured Data for Google */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "TripGoals",
+              "url": "https://tripgoals.co.in",
+              "logo": "https://tripgoals.co.in/Tripgoal_logo.png",
+              "sameAs": [],
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "telephone": "+91-XXXXXXXXXX",
+                "contactType": "customer service"
+              }
+            })
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "TripGoals",
+              "url": "https://tripgoals.co.in",
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://tripgoals.co.in/packages?search={search_term_string}",
+                "query-input": "required name=search_term_string"
+              }
+            })
+          }}
+        />
+        
         {/* Google Fonts */}
         <link
           href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap"

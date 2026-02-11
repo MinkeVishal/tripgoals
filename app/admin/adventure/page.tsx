@@ -11,19 +11,25 @@ import toast from 'react-hot-toast';
 
 export default function AdventureManagement() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [adminRole, setAdminRole] = useState<'admin' | 'miniadmin'>('admin');
     const [adventures, setAdventures] = useState<Package[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [editingPackage, setEditingPackage] = useState<Package | null>(null);
 
+    const isMiniadmin = adminRole === 'miniadmin';
+
     useEffect(() => {
         const checkAuth = () => {
             const authState = localStorage.getItem('adminAuth');
             if (authState) {
-                const parsed: AdminAuthState = JSON.parse(authState);
+                const parsed: AdminAuthState & { role?: 'admin' | 'miniadmin' } = JSON.parse(authState);
                 const isValid = parsed.isAuthenticated && (Date.now() - parsed.timestamp < 3600000);
                 setIsAuthenticated(isValid);
+                if (parsed.role) {
+                    setAdminRole(parsed.role);
+                }
             }
         };
 
@@ -90,7 +96,14 @@ export default function AdventureManagement() {
     };
 
     if (!isAuthenticated) {
-        return <AdminAuth onAuthenticated={() => setIsAuthenticated(true)} />;
+        return (
+            <AdminAuth 
+                onAuthenticated={(role) => {
+                    setAdminRole(role);
+                    setIsAuthenticated(true);
+                }} 
+            />
+        );
     }
 
     return (
@@ -98,8 +111,12 @@ export default function AdventureManagement() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Adventure Management</h1>
-                        <p className="text-gray-600 mt-2">Create and manage adventure activities</p>
+                        <div className="flex items-center gap-3">
+                            <h1 className="text-3xl font-bold text-gray-900">Adventure Management</h1>
+                        </div>
+                        <p className="text-gray-600 mt-2">
+                            {isMiniadmin ? 'Add and edit adventures' : 'Create and manage adventure activities'}
+                        </p>
                     </div>
                     <button
                         onClick={handleAddNew}
@@ -156,13 +173,15 @@ export default function AdventureManagement() {
                                             <Edit className="h-4 w-4" />
                                             <span>Edit</span>
                                         </button>
-                                        <button
-                                            onClick={() => handleDelete(pkg)}
-                                            className="flex-1 bg-red-100 hover:bg-red-200 text-red-700 py-2 rounded-lg flex items-center justify-center space-x-1 transition-colors"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                            <span>Delete</span>
-                                        </button>
+                                        {!isMiniadmin && (
+                                            <button
+                                                onClick={() => handleDelete(pkg)}
+                                                className="flex-1 bg-red-100 hover:bg-red-200 text-red-700 py-2 rounded-lg flex items-center justify-center space-x-1 transition-colors"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                                <span>Delete</span>
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>

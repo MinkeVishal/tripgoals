@@ -130,39 +130,39 @@ function AllPackagesContent() {
         {/* Filter Section */}
         <section className="bg-white/50 py-3 sticky z-10 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-5">
-            <div className="flex flex-col md:flex-row justify-center items-center gap-2 flex-wrap">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
               <input
                 type="text"
                 placeholder="Search packages..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="px-2 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500 min-w-[150px]"
+                className="px-2 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500 w-full"
               />
               <input
                 type="text"
                 placeholder="Destination..."
                 value={destinationFilter}
                 onChange={(e) => setDestinationFilter(e.target.value)}
-                className="px-2 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500 min-w-[150px]"
+                className="px-2 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500 w-full"
               />
               <input
                 type="date"
                 placeholder="From Date..."
                 value={fromDateFilter}
                 onChange={(e) => setFromDateFilter(e.target.value)}
-                className="px-2 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500 min-w-[150px]"
+                className="px-2 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500 w-full"
               />
               <input
                 type="date"
                 placeholder="To Date..."
                 value={toDateFilter}
                 onChange={(e) => setToDateFilter(e.target.value)}
-                className="px-2 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500 min-w-[150px]"
+                className="px-2 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500 w-full"
               />
               <select
                 value={durationFilter}
                 onChange={(e) => setDurationFilter(e.target.value)}
-                className="px-2 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500 min-w-[150px]"
+                className="px-2 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500 w-full"
               >
                 <option value="">All Durations</option>
                 <option value="3-days">3 Days</option>
@@ -174,7 +174,7 @@ function AllPackagesContent() {
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="px-2 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500 min-w-[150px]"
+                className="px-2 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500 w-full"
               >
                 <option value="">All Categories</option>
                 {categories.map((cat) => (
@@ -186,7 +186,7 @@ function AllPackagesContent() {
               <select
                 value={priceFilter}
                 onChange={(e) => setPriceFilter(e.target.value)}
-                className="px-2 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500 min-w-[150px]"
+                className="px-2 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-colors focus:outline-none focus:border-blue-500 w-full"
               >
                 <option value="">All Prices</option>
                 <option value="low">Under ₹20,000</option>
