@@ -1,27 +1,48 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { getPackages, getLatestPackages } from '@/lib/appwrite';
 import { Package } from '@/types';
 import PackageCard from './PackageCard';
 
 interface PackageSectionProps {
   title: string;
-  section: 'popular' | 'special' | 'new';
+  section: string;
   limit?: number;
 }
+
+// Simple in-memory cache to prevent re-fetching on every render
+const packageCache: { [key: string]: { data: Package[]; timestamp: number } } = {};
+const CACHE_DURATION = 30 * 1000; // 30 seconds for faster updates
 
 export default function PackageSection({ title, section, limit = 10 }: PackageSectionProps) {
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const cacheKey = `${section}-${limit}`;
+
     const fetchPackages = async () => {
+      // Check cache first
+      const cached = packageCache[cacheKey];
+      if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+        setPackages(cached.data);
+        setLoading(false);
+        return;
+      }
+
       try {
-        const response = section === 'new' 
-          ? await getLatestPackages(limit) 
+        const response = section === 'new'
+          ? await getLatestPackages(limit)
           : await getPackages(limit, section);
-        setPackages(response.documents as Package[]);
+        const docs = response.documents as Package[];
+
+        console.log(`[PackageSection] Fetched ${docs.length} packages for section: ${section}`, docs);
+
+        // Store in cache
+        packageCache[cacheKey] = { data: docs, timestamp: Date.now() };
+        setPackages(docs);
       } catch (error) {
         console.error('Error fetching packages:', error);
       } finally {
@@ -30,32 +51,87 @@ export default function PackageSection({ title, section, limit = 10 }: PackageSe
     };
 
     fetchPackages();
+
+    // Listen for package updates
+    const handlePackageUpdate = () => {
+      // Clear cache for this section
+      delete packageCache[cacheKey];
+      setLoading(true);
+      fetchPackages();
+    };
+
+    window.addEventListener('packageAdded', handlePackageUpdate);
+    window.addEventListener('packageUpdated', handlePackageUpdate);
+
+    return () => {
+      window.removeEventListener('packageAdded', handlePackageUpdate);
+      window.removeEventListener('packageUpdated', handlePackageUpdate);
+    };
   }, [section, limit]);
+
+  // Auto-scroll slideshow
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container || loading || packages.length === 0) return;
+
+    const scrollAmount = 280; // Card width + gap roughly
+
+    const interval = setInterval(() => {
+      if (container) {
+        // Check if we've reached the end
+        if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
+          container.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+      }
+    }, 5000); // 5 seconds
+
+    return () => clearInterval(interval);
+  }, [loading, packages.length]);
 
   if (loading) {
     return (
-      <section className="py-6">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-2xl font-semibold text-gray-800 text-center mb-6">{title}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="h-56 bg-gray-100 rounded-lg animate-pulse" />
-            ))}
+      <section className="py-2 relative z-10">
+        <div className="max-w-full mx-auto px-5">
+          <h2 className="text-xl font-bold text-center text-white mt-7 mb-4">
+            {title}
+          </h2>
+
+          <div className="relative overflow-hidden py-1">
+            <div className="flex space-x-4 overflow-x-auto hide-scrollbar pb-4 py-4 scroll-smooth" style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="min-w-[180px] h-[230px] sm:min-w-[220px] sm:h-[260px] md:min-w-[260px] md:h-[300px] bg-white/10 rounded-2xl animate-pulse flex-shrink-0" style={{ animationDuration: '0.8s' }}>
+                  <div className="h-[110px] sm:h-[130px] md:h-[160px] bg-gray-300/30 rounded-t-2xl"></div>
+                  <div className="p-3 space-y-2">
+                    <div className="h-4 bg-gray-300/30 rounded"></div>
+                    <div className="h-3 bg-gray-300/30 rounded w-2/3 mx-auto"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
     );
   }
-
   return (
-    <section className="py-6">
-      <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-2xl font-semibold text-gray-800 text-center mb-6 animate-fadeIn">{title}</h2>
+    <section id="packages" className="py-4 relative z-10" suppressHydrationWarning>
+      <div className="max-w-full mx-auto px-5">
+        <h2 className="text-xl font-bold text-center text-white mt-7 mb-4">
+          {title}
+        </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {packages.map((pkg) => (
-            <PackageCard key={pkg.$id} package={pkg} />
-          ))}
+        <div className="relative py-1">
+          <div
+            ref={scrollContainerRef}
+            className="flex space-x-4 overflow-x-auto hide-scrollbar pb-2 scroll-smooth"
+            style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}
+          >
+            {packages.map((pkg) => (
+              <PackageCard key={pkg.$id} package={pkg} />
+            ))}
+          </div>
         </div>
       </div>
     </section>

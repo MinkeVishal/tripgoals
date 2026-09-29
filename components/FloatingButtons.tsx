@@ -1,10 +1,6 @@
 'use client';
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faWhatsapp,
-  faInstagram,
-} from "@fortawesome/free-brands-svg-icons";
+import Link from 'next/link';
 export default function FloatingButtons() {
   const handleWhatsAppClick = () => {
     const whatsappUrl = 'https://wa.me/917709823098';
@@ -23,8 +19,6 @@ export default function FloatingButtons() {
         aria-label="Contact us on WhatsApp"
       >
         <i className="fab fa-whatsapp"></i>
-                <FontAwesomeIcon icon={faWhatsapp} />
-
       </button>
 
       {/* Instagram Button */}
@@ -34,7 +28,6 @@ export default function FloatingButtons() {
         aria-label="Follow us on Instagram"
       >
         <i className="fab fa-instagram"></i>
-                <FontAwesomeIcon icon={faInstagram} />
       </button>
     </div>
   );

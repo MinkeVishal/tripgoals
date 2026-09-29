@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { getCategories } from '@/lib/appwrite';
 import { Category } from '@/types';
 import CategoryCard from './CategoryCard';
@@ -8,6 +8,7 @@ import CategoryCard from './CategoryCard';
 export default function CategoriesSection() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -24,39 +25,41 @@ export default function CategoriesSection() {
     fetchCategories();
   }, []);
 
-  const openCategoryPage = (categoryName: string) => {
-    window.location.href = `/packages?category=${categoryName}`;
-  };
+  // Auto-scroll slideshow
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container || loading || categories.length === 0) return;
 
-  if (loading) {
-    return (
-      <section className="py-6">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6">Explore by Category</h2>
-          <div className="overflow-x-auto pb-4">
-            <div className="flex gap-6 min-w-min">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="h-48 w-48 bg-gray-100 rounded-lg animate-pulse flex-shrink-0" />
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-    );
-  }
+    const scrollAmount = 280; // Card width + gap roughly
+
+    const interval = setInterval(() => {
+      if (container) {
+        if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
+          container.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+      }
+    }, 5000); // 5 seconds
+
+    return () => clearInterval(interval);
+  }, [loading, categories.length]);
 
   return (
-    <section className="py-6">
-      <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6 animate-fadeIn">Explore by Category</h2>
-        <div className="overflow-x-auto pb-4 scrollbar-hide">
-          <div className="flex gap-6 min-w-min">
-            {categories.map((cat) => (
-              <div key={cat.$id} className="flex-shrink-0 w-48">
-                <CategoryCard category={cat} onClick={() => openCategoryPage(cat.name)} />
-              </div>
-            ))}
-          </div>
+    <section className="py-5 relative z-10">
+      <div className="max-w-full mx-auto px-5">
+        <h2 className="text-xl font-bold text-center text-white mb-4">Categories</h2>
+        <p className="text-center text-yellow-600 mb-2 text-base">Choose your travel style</p>
+
+        <div
+          ref={scrollContainerRef}
+          className="flex space-x-4 mt-6 overflow-x-auto hide-scrollbar py-2 scroll-smooth"
+          style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}
+        >
+          {categories.map((category) => (
+            //@ts-ignore
+            <CategoryCard key={category.$id} category={category} />
+          ))}
         </div>
       </div>
     </section>

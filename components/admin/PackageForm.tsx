@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import Image from 'next/image';
+import { useState, useEffect } from 'react';
 import { X, Upload, Plus, Trash2 } from 'lucide-react';
 import { Formik, Form, Field } from 'formik';
 import * as z from 'zod';
@@ -11,11 +12,11 @@ import toast from 'react-hot-toast';
 const packageSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   subtitle: z.string().min(1, 'Subtitle is required'),
-  days: z.number().min(1, 'Duration must be at least 1 day'),
+  duration: z.string().min(1, 'Duration is required'),
   price: z.number().min(0, 'Price must be at least 0'),
   category: z.string().min(1, 'Category is required'),
   description: z.string().min(1, 'Description is required'),
-  section: z.enum(['popular', 'special', 'other']),
+  section: z.enum(['popular', 'special', 'adventure', 'other']),
 });
 
 interface PackageFormProps {
@@ -25,19 +26,81 @@ interface PackageFormProps {
 }
 
 export default function PackageForm({ package: editPackage, categories, onClose }: PackageFormProps) {
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(
-    editPackage ? `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/68cbee510018bf68f24c/files/${editPackage.imageId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}` : null
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>(
+    editPackage?.imageIds?.map(id =>
+      `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/68cbee510018bf68f24c/files/${id}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`
+    ) || (editPackage?.imageId ? [
+      `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/68cbee510018bf68f24c/files/${editPackage.imageId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`
+    ] : [])
+  );
+  const [existingImageIds, setExistingImageIds] = useState<string[]>(
+    editPackage?.imageIds || (editPackage?.imageId ? [editPackage.imageId] : [])
   );
   const [whatsIncluded, setWhatsIncluded] = useState<string[]>(editPackage?.whatsIncluded || ['']);
+  const [itinerary, setItinerary] = useState<string[]>(editPackage?.itinerary || ['']);
+  // Amenities stored as "icon|name" strings
+  const [packageAmenities, setPackageAmenities] = useState<{ icon: string, name: string }[]>(
+    editPackage?.amenityIds?.map(a => {
+      const [icon, name] = a.split('|');
+      return { icon: icon || '', name: name || '' };
+    }) || []
+  );
+
+  // Common FontAwesome icons for travel amenities
+  const commonIcons = [
+    { value: 'fas fa-utensils', label: 'Meals' },
+    { value: 'fas fa-car', label: 'Car' },
+    { value: 'fas fa-hotel', label: 'Hotel' },
+    { value: 'fas fa-bed', label: 'Stay' },
+    { value: 'fas fa-plane', label: 'Flight' },
+    { value: 'fas fa-train', label: 'Train' },
+    { value: 'fas fa-bus', label: 'Bus' },
+    { value: 'fas fa-camera', label: 'Photo' },
+    { value: 'fas fa-map-marked-alt', label: 'Guide' },
+    { value: 'fas fa-wifi', label: 'WiFi' },
+    { value: 'fas fa-swimming-pool', label: 'Pool' },
+    { value: 'fas fa-spa', label: 'Spa' },
+    { value: 'fas fa-hiking', label: 'Trek' },
+    { value: 'fas fa-umbrella-beach', label: 'Beach' },
+    { value: 'fas fa-coffee', label: 'Breakfast' },
+  ];
+
+  const addAmenity = () => {
+    setPackageAmenities([...packageAmenities, { icon: '', name: '' }]);
+  };
+
+  const updateAmenity = (index: number, field: 'icon' | 'name', value: string) => {
+    const updated = [...packageAmenities];
+    updated[index][field] = value;
+    setPackageAmenities(updated);
+  };
+
+  const removeAmenity = (index: number) => {
+    setPackageAmenities(packageAmenities.filter((_, i) => i !== index));
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onload = () => setImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setImageFiles(prev => [...prev, ...files]);
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = () => setImagePreviews(prev => [...prev, reader.result as string]);
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const removeImage = (index: number) => {
+    const isExistingImage = index < existingImageIds.length;
+    if (isExistingImage) {
+      setExistingImageIds(prev => prev.filter((_, i) => i !== index));
+      setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    } else {
+      const newFileIndex = index - existingImageIds.length;
+      setImageFiles(prev => prev.filter((_, i) => i !== newFileIndex));
+      setImagePreviews(prev => prev.filter((_, i) => i !== index));
     }
   };
 
@@ -54,6 +117,35 @@ export default function PackageForm({ package: editPackage, categories, onClose 
   const removeIncludedItem = (index: number) => {
     setWhatsIncluded(whatsIncluded.filter((_, i) => i !== index));
   };
+
+  const addItineraryItem = () => {
+    setItinerary([...itinerary, '']);
+  };
+
+  const updateItineraryItem = (index: number, value: string) => {
+    const updated = [...itinerary];
+    updated[index] = value;
+    setItinerary(updated);
+  };
+
+  const removeItineraryItem = (index: number) => {
+    setItinerary(itinerary.filter((_, i) => i !== index));
+  };
+
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [isCustomSection, setIsCustomSection] = useState(false);
+
+  // Initialize custom state based on whether the current values are in the standard lists
+  useEffect(() => {
+    if (editPackage) {
+      if (editPackage.category && !categories.some(c => c.name === editPackage.category)) {
+        setIsCustomCategory(true);
+      }
+      if (editPackage.section && !['popular', 'special', 'adventure', 'other'].includes(editPackage.section)) {
+        setIsCustomSection(true);
+      }
+    }
+  }, [editPackage, categories]);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -74,11 +166,11 @@ export default function PackageForm({ package: editPackage, categories, onClose 
           initialValues={{
             title: editPackage?.title || '',
             subtitle: editPackage?.subtitle || '',
-            days: editPackage?.days || 1,
-            price: editPackage?.price || 0,
+            duration: editPackage?.duration || '',
+            price: editPackage?.price || '',
             category: editPackage?.category || '',
             description: editPackage?.description || '',
-            section: editPackage?.section || 'other' as const,
+            section: editPackage?.section || 'other',
           }}
           validate={(values) => {
             try {
@@ -96,31 +188,55 @@ export default function PackageForm({ package: editPackage, categories, onClose 
           }}
           onSubmit={async (values, { setSubmitting }) => {
             try {
-              let imageId = editPackage?.imageId;
-
-              // Upload new image if provided
-              if (imageFile) {
-                const uploadResponse = await uploadImage(imageFile);
-                imageId = uploadResponse.$id;
+              // Upload all new images
+              const newImageIds: string[] = [];
+              for (const file of imageFiles) {
+                const uploadResponse = await uploadImage(file);
+                newImageIds.push(uploadResponse.$id);
               }
 
-              if (!imageId) {
-                toast.error('Please select an image');
+              // Combine existing and new image IDs
+              const allImageIds = [...existingImageIds, ...newImageIds];
+
+              if (allImageIds.length === 0) {
+                toast.error('Please select at least one image');
                 return;
               }
 
-              const packageData = {
-                ...values,
-                imageId,
+              if (!values.duration) {
+                toast.error('Please enter duration (e.g., 1 night 1 day)');
+                return;
+              }
+
+              const packageData: Record<string, any> = {
+                title: values.title,
+                subtitle: values.subtitle,
+                duration: values.duration,
+                category: values.category,
+                description: values.description,
+                section: values.section,
+                price: Number(values.price) || 0,
+                imageId: allImageIds[0], // Primary image
+                imageIds: allImageIds, // All images for carousel
                 whatsIncluded: whatsIncluded.filter(item => item.trim() !== ''),
+                itinerary: itinerary.filter(item => item.trim() !== ''),
+                amenityIds: packageAmenities.filter(a => a.icon && a.name).map(a => `${a.icon}|${a.name}`),
               };
 
-              if (editPackage) {
-                await updatePackage(editPackage.$id, packageData);
+              // Debug: Log what we're sending
+              console.log('Saving packageAmenities:', packageAmenities);
+              console.log('Saving amenityIds:', packageData.amenityIds);
+
+              const dataToSend = packageData;
+
+              if (editPackage?.$id) {
+                await updatePackage(editPackage.$id, dataToSend);
                 toast.success('Package updated successfully');
+                window.dispatchEvent(new Event('packageUpdated'));
               } else {
-                await createPackage(packageData as any);
+                await createPackage(dataToSend as any);
                 toast.success('Package created successfully');
+                window.dispatchEvent(new Event('packageAdded'));
               }
 
               onClose();
@@ -137,46 +253,55 @@ export default function PackageForm({ package: editPackage, categories, onClose 
               {/* Image Upload */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Package Image
+                  Package Images
                 </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                  {imagePreview ? (
-                    <div className="relative">
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="w-full h-32 object-cover rounded-lg mb-4"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setImageFile(null);
-                          setImagePreview(null);
-                        }}
-                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                  {imagePreviews.length > 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                      {imagePreviews.map((preview, index) => (
+                        <div key={index} className="relative">
+                          <Image
+                            src={preview}
+                            alt={`Preview ${index + 1}`}
+                            width={200}
+                            height={128}
+                            className="w-full h-24 object-cover rounded-lg"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                          {index === 0 && (
+                            <span className="absolute bottom-1 left-1 bg-blue-600 text-white text-xs px-2 py-0.5 rounded">Primary</span>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   ) : (
-                    <div>
+                    <div className="text-center mb-4">
                       <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600">Click to upload an image</p>
+                      <p className="text-gray-600">Click to upload images</p>
                     </div>
                   )}
                   <input
                     type="file"
                     accept="image/*"
+                    multiple
                     onChange={handleImageChange}
                     className="hidden"
                     id="image-upload"
                   />
-                  <label
-                    htmlFor="image-upload"
-                    className="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-700 transition-colors"
-                  >
-                    {imagePreview ? 'Change Image' : 'Upload Image'}
-                  </label>
+                  <div className="text-center">
+                    <label
+                      htmlFor="image-upload"
+                      className="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-700 transition-colors"
+                    >
+                      {imagePreviews.length > 0 ? 'Add More Images' : 'Upload Images'}
+                    </label>
+                  </div>
                 </div>
               </div>
 
@@ -196,16 +321,15 @@ export default function PackageForm({ package: editPackage, categories, onClose 
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Days</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
                   <Field
-                    name="days"
-                    type="number"
-                    min="1"
+                    name="duration"
+                    type="text"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Number of days"
+                    placeholder="e.g., 1 night 1 day"
                   />
-                  {errors.days && touched.days && (
-                    <p className="text-red-500 text-sm mt-1">{errors.days}</p>
+                  {errors.duration && touched.duration && (
+                    <p className="text-red-500 text-sm mt-1">{errors.duration}</p>
                   )}
                 </div>
 
@@ -216,12 +340,13 @@ export default function PackageForm({ package: editPackage, categories, onClose 
                     type="number"
                     min="0"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Package price"
+                    placeholder="e.g., 25000"
                   />
                   {errors.price && touched.price && (
                     <p className="text-red-500 text-sm mt-1">{errors.price}</p>
                   )}
                 </div>
+
               </div>
 
               <div>
@@ -240,18 +365,50 @@ export default function PackageForm({ package: editPackage, categories, onClose 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                  <Field
-                    as="select"
-                    name="category"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select a category</option>
-                    {categories.map((category) => (
-                      <option key={category.$id} value={category.name}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </Field>
+                  {!isCustomCategory ? (
+                    <div className="flex gap-2">
+                      <Field
+                        as="select"
+                        name="category"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                          const value = e.target.value;
+                          if (value === '__other__') {
+                            setIsCustomCategory(true);
+                            setFieldValue('category', '');
+                          } else {
+                            setFieldValue('category', value);
+                          }
+                        }}
+                      >
+                        <option value="">Select a category</option>
+                        {categories.map((category) => (
+                          <option key={category.$id} value={category.name}>
+                            {category.name}
+                          </option>
+                        ))}
+                        <option value="__other__">Other (Add New)</option>
+                      </Field>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Field
+                        name="category"
+                        type="text"
+                        placeholder="Enter custom category"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setIsCustomCategory(false)}
+                        className="px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                        title="Back to list"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
+                  )}
                   {errors.category && touched.category && (
                     <p className="text-red-500 text-sm mt-1">{errors.category}</p>
                   )}
@@ -259,15 +416,48 @@ export default function PackageForm({ package: editPackage, categories, onClose 
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Section</label>
-                  <Field
-                    as="select"
-                    name="section"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="other">Other</option>
-                    <option value="popular">Popular</option>
-                    <option value="special">Special</option>
-                  </Field>
+                  {!isCustomSection ? (
+                    <div className="flex gap-2">
+                      <Field
+                        as="select"
+                        name="section"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                          const value = e.target.value;
+                          if (value === '__other__') {
+                            setIsCustomSection(true);
+                            setFieldValue('section', '');
+                          } else {
+                            setFieldValue('section', value);
+                          }
+                        }}
+                      >
+                        <option value="other">Other</option>
+                        <option value="popular">Popular</option>
+                        <option value="special">Special</option>
+                        <option value="adventure">Adventure</option>
+                        <option value="__other__">Add Custom Section...</option>
+                      </Field>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Field
+                        name="section"
+                        type="text"
+                        placeholder="Enter custom section"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setIsCustomSection(false)}
+                        className="px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                        title="Back to list"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -285,9 +475,45 @@ export default function PackageForm({ package: editPackage, categories, onClose 
                 )}
               </div>
 
+              {/* Itinerary */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Itinerary (Day by Day)</label>
+                <div className="space-y-2">
+                  {itinerary.map((item, index) => (
+                    <div key={index} className="flex space-x-2">
+                      <div className="flex items-center bg-blue-100 px-3 rounded-lg">
+                        <span className="text-sm font-medium text-blue-600">Day {index + 1}</span>
+                      </div>
+                      <input
+                        type="text"
+                        value={item}
+                        onChange={(e) => updateItineraryItem(index, e.target.value)}
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder={`Enter Day ${index + 1} itinerary details`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeItineraryItem(index)}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={addItineraryItem}
+                    className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Add Day</span>
+                  </button>
+                </div>
+              </div>
+
               {/* What's Included */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">What's Included</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">What&apos;s Included</label>
                 <div className="space-y-2">
                   {whatsIncluded.map((item, index) => (
                     <div key={index} className="flex space-x-2">
@@ -317,6 +543,51 @@ export default function PackageForm({ package: editPackage, categories, onClose 
                   </button>
                 </div>
               </div>
+
+              {/* Amenities */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Amenities (Icons on Package Card)</label>
+                <div className="space-y-2">
+                  {packageAmenities.map((amenity, index) => (
+                    <div key={index} className="flex space-x-2 items-center">
+                      <select
+                        value={amenity.icon}
+                        onChange={(e) => updateAmenity(index, 'icon', e.target.value)}
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="">Select icon...</option>
+                        {commonIcons.map((icon) => (
+                          <option key={icon.value} value={icon.value}>{icon.label}</option>
+                        ))}
+                      </select>
+                      {amenity.icon && <i className={`${amenity.icon} text-yellow-500 text-lg`}></i>}
+                      <input
+                        type="text"
+                        value={amenity.name}
+                        onChange={(e) => updateAmenity(index, 'name', e.target.value)}
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Amenity name (e.g., Meals Included)"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeAmenity(index)}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={addAmenity}
+                    className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Add Amenity</span>
+                  </button>
+                </div>
+              </div>
+
 
               {/* Form Actions */}
               <div className="flex space-x-4 pt-6 border-t border-gray-200">

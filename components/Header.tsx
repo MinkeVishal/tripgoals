@@ -1,28 +1,36 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState, useEffect, type FormEvent } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import toast from 'react-hot-toast';
 
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [scrolled, setScrolled] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showAdminAuth, setShowAdminAuth] = useState(false);
-  const [adminPassword, setAdminPassword] = useState('');
-  const [loadingAdminAuth, setLoadingAdminAuth] = useState(false);
+  const [showAdminDropdown, setShowAdminDropdown] = useState(false);
 
   useEffect(() => {
     const checkAuthStatus = () => {
       const user = localStorage.getItem('currentUser');
-      if (user) setCurrentUser(JSON.parse(user));
+      if (user) {
+        setCurrentUser(JSON.parse(user));
+      }
+    };
+
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 100);
     };
 
     checkAuthStatus();
+    window.addEventListener('scroll', handleScroll);
+
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
@@ -31,42 +39,22 @@ export default function Header() {
   }, [searchParams]);
 
   const showLoginModal = () => {
-    window.dispatchEvent(new CustomEvent('showLoginModal'));
+    const event = new CustomEvent('showLoginModal');
+    window.dispatchEvent(event);
   };
 
   const showSignupModal = () => {
-    window.dispatchEvent(new CustomEvent('showSignupModal'));
+    const event = new CustomEvent('showSignupModal');
+    window.dispatchEvent(event);
   };
-
+  console.log('pathname', pathname);
   const handleSearch = (e?: FormEvent) => {
     e?.preventDefault();
     const query = searchTerm.trim();
     const target = query ? `/packages?search=${encodeURIComponent(query)}` : '/packages';
+    setIsMenuOpen(false);
     router.push(target);
   };
-
-  const handleAdminAuth = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoadingAdminAuth(true);
-
-    setTimeout(() => {
-      if (adminPassword === process.env.NEXT_PUBLIC_ADMIN_PASSWORD || adminPassword === 'admin123') {
-        const authState = {
-          isAuthenticated: true,
-          timestamp: Date.now()
-        };
-        localStorage.setItem('adminAuth', JSON.stringify(authState));
-        toast.success('Authentication successful');
-        setShowAdminAuth(false);
-        setAdminPassword('');
-        router.push('/admin');
-      } else {
-        toast.error('Invalid password');
-      }
-      setLoadingAdminAuth(false);
-    }, 1000);
-  };
-
   const logout = () => {
     localStorage.removeItem('currentUser');
     setCurrentUser(null);
@@ -74,129 +62,355 @@ export default function Header() {
       window.location.href = '/';
     }
   };
-
   if (pathname.split('/').includes('admin')) return null;
 
   return (
-    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center">
-            <Image 
-              src="/logo.jpeg"
-              alt="TripGoals Logo"
-              width={40}
-              height={40}
-              style={{ height: '48px', width: 'auto' }}
-              priority
-              className="hover:scale-110 transition-transform duration-300"
-            />
-          </Link>
+    <>
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled
+        ? 'bg-grey/90 backdrop-blur-md shadow-lg'
+        : 'bg-white/10 backdrop-blur-sm'
+        }`}>
+        <div className="max-w-7xl mx-auto px-5">
+          <div className="flex items-center h-16">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-3">
+              <Image
+                src="/Tripgoal_logo.png"
+                alt="TripGoals Logo"
+                width={55}
+                height={55}
+              />
+              <h2 className="text-4xl font-bold font-dancing-script bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
+                TripGoals
+              </h2>
+            </Link>
 
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link href="/" className={`text-sm font-medium ${pathname === '/' ? 'text-gray-900 underline' : 'text-gray-700 hover:text-gray-900'}`}>
-              Home
-            </Link>
-            <Link href="/packages" className={`text-sm font-medium ${pathname?.startsWith('/packages') ? 'text-gray-900 underline' : 'text-gray-700 hover:text-gray-900'}`}>
-              Packages
-            </Link>
-            <Link href="/categories" className={`text-sm font-medium ${pathname?.startsWith('/categories') ? 'text-gray-900 underline' : 'text-gray-700 hover:text-gray-900'}`}>
-              Categories
-            </Link>
-            <Link href="/contact" className="text-sm font-medium text-gray-700 hover:text-gray-900">
-              Contact
-            </Link>
-            {currentUser?.role === 'admin' && (
-              <Link href="/admin" className={`text-sm font-medium ${pathname?.startsWith('/admin') ? 'text-blue-600 underline' : 'text-blue-600 hover:text-blue-700'}`}>
-                Admin
-              </Link>
-            )}
-          </nav>
+            {/* Desktop Navigation */}
+            <ul className="hidden md:flex items-center space-x-6 ml-8 lg:ml-12">
+              <li>
+                <Link
+                  href="/"
+                  className={`text-white font-medium text-sm transition-all duration-300 hover:text-yellow-400 hover:-translate-y-0.5 relative ${pathname === '/' ? 'text-yellow-400' : ''
+                    }`}
+                >
+                  Home
+                  <span className={`absolute bottom-0 left-0 h-0.5 bg-yellow-400 transition-all duration-300 ${pathname === '/' ? 'w-full' : 'w-0 hover:w-full'
+                    }`}></span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/packages"
+                  className={`text-white font-medium text-sm transition-all duration-300 hover:text-yellow-400 hover:-translate-y-0.5 relative ${pathname === '/packages' ? 'text-yellow-400' : ''
+                    }`}
+                >
+                  All Packages
+                  <span className={`absolute bottom-0 left-0 h-0.5 bg-yellow-400 transition-all duration-300 ${pathname === '/packages' ? 'w-full' : 'w-0 hover:w-full'
+                    }`}></span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/categories"
+                  className={`text-white font-medium text-sm transition-all duration-300 hover:text-yellow-400 hover:-translate-y-0.5 relative ${pathname === '/categories' ? 'text-yellow-400' : ''}`}
+                >
+                  Categories
+                  <span className={`absolute bottom-0 left-0 h-0.5 bg-yellow-400 transition-all duration-300 ${pathname === '/categories' ? 'w-full' : 'w-0 hover:w-full'}`}></span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/adventure"
+                  className={`text-white font-medium text-sm transition-all duration-300 hover:text-yellow-400 hover:-translate-y-0.5 relative ${pathname === '/adventure' ? 'text-yellow-400' : ''}`}
+                >
+                  Adventure
+                  <span className={`absolute bottom-0 left-0 h-0.5 bg-yellow-400 transition-all duration-300 ${pathname === '/adventure' ? 'w-full' : 'w-0 hover:w-full'}`}></span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/about"
+                  className={`text-white font-medium text-sm transition-all duration-300 hover:text-yellow-400 hover:-translate-y-0.5 relative ${pathname === '/about' ? 'text-yellow-400' : ''
+                    }`}
+                >
+                  About Us
+                  <span className={`absolute bottom-0 left-0 h-0.5 bg-yellow-400 transition-all duration-300 ${pathname === '/about' ? 'w-full' : 'w-0 hover:w-full'
+                    }`}></span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contact"
+                  className={`text-white font-medium text-sm transition-all duration-300 hover:text-yellow-400 hover:-translate-y-0.5 relative ${pathname === '/contact' ? 'text-yellow-400' : ''
+                    }`}
+                >
+                  Contact Us
+                  <span className={`absolute bottom-0 left-0 h-0.5 bg-yellow-400 transition-all duration-300 ${pathname === '/contact' ? 'w-full' : 'w-0 hover:w-full'
+                    }`}></span>
+                </Link>
+              </li>
+            </ul>
 
-          <div className="flex items-center space-x-3">
-            <form onSubmit={handleSearch} className="hidden sm:flex items-center bg-white border border-gray-200 rounded-md overflow-hidden">
-              <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search packages" className="px-3 py-2 text-sm outline-none w-48" />
-              <button type="submit" className="px-3 py-2 bg-gray-100 text-sm font-medium">Go</button>
-            </form>
+            {/* Right Side Actions */}
+            <div className="hidden md:flex items-center ml-auto gap-4">
+              {/* Desktop Search */}
+              <form
+                onSubmit={handleSearch}
+                className="flex items-center bg-white/15 backdrop-blur-md border border-white/20 rounded-full px-3 py-1 max-w-[200px] w-full"
+              >
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search packages"
+                  className="bg-transparent flex-1 w-full min-w-0 text-white text-sm placeholder-white/60 focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  className="text-white hover:text-yellow-300 transition-colors flex-shrink-0 ml-2"
+                  aria-label="Search packages"
+                >
+                  <i className="fas fa-search"></i>
+                </button>
+              </form>
 
-            {currentUser ? (
-              <div className="flex items-center space-x-3">
-                {currentUser.role === 'admin' && (
-                  <div className="flex gap-2">
-                    <button onClick={() => router.push('/admin/packages')} className="text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-md transition-colors">
-                      Add Package
+              {/* Auth Section */}
+              <div className="flex items-center space-x-2">
+                {currentUser ? (
+                  <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full">
+                    <Image
+                      src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=50&h=50&fit=crop"
+                      alt="Profile"
+                      width={20}
+                      height={20}
+                      className="rounded-full object-cover"
+                    />
+                    <span className="text-white text-sm font-medium">{currentUser.name}</span>
+                    <button
+                      onClick={logout}
+                      className="text-white hover:text-yellow-400 transition-colors"
+                    >
+                      <i className="fas fa-sign-out-alt"></i>
                     </button>
-                    <button onClick={() => router.push('/admin')} className="text-sm font-medium text-white bg-green-600 hover:bg-green-700 px-3 py-1 rounded-md transition-colors">
-                      Admin Panel
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-3">
+                    <button
+                      suppressHydrationWarning
+                      onClick={showLoginModal}
+                      className="bg-white/20 border border-white/30 text-white px-4 py-1.5 rounded-full text-xs font-medium hover:bg-white/30 transition-all duration-300 backdrop-blur-md"
+                    >
+                      Login
+                    </button>
+                    <button
+                      suppressHydrationWarning
+                      onClick={showSignupModal}
+                      className="bg-gradient-to-r from-yellow-400 to-orange-400 text-black px-4 py-1.5 rounded-full text-xs font-semibold hover:from-orange-400 hover:to-yellow-400 transition-all duration-300 hover:-translate-y-0.5 shadow-lg hover:shadow-yellow-400/30"
+                    >
+                      Sign Up
+                    </button>
+                    <div className="relative">
+                      <button
+                        suppressHydrationWarning
+                        onClick={() => setShowAdminDropdown(!showAdminDropdown)}
+                        className="bg-red-600/20 border border-red-400/30 text-red-400 px-4 py-1.5 rounded-full text-xs font-medium hover:bg-red-600/30 transition-all duration-300 backdrop-blur-md"
+                      >
+                        <i className="fas fa-lock mr-2"></i>Admin
+                        <i className={`fas fa-chevron-down ml-2 transition-transform ${showAdminDropdown ? 'rotate-180' : ''}`}></i>
+                      </button>
+                      {showAdminDropdown && (
+                        <div className="absolute right-0 mt-2 w-40 bg-white/95 backdrop-blur-md rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50">
+                          <button
+                            onClick={() => {
+                              router.push('/admin');
+                              setShowAdminDropdown(false);
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                          >
+                            <i className="fas fa-user-shield mr-2 text-red-500"></i>Admin
+                          </button>
+                          <button
+                            onClick={() => {
+                              router.push('/admin?role=miniadmin');
+                              setShowAdminDropdown(false);
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                          >
+                            <i className="fas fa-shield-alt mr-2 text-orange-500"></i>Mini Admin
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {currentUser && (
+                  <button
+                    onClick={logout}
+                    className="relative overflow-hidden px-2 py-1 md:px-3 md:py-1
+                 text-[7px] md:text-xs font-medium text-black
+                 rounded-full shadow-md backdrop-blur-md
+                 bg-gradient-to-r from-yellow-400/90 to-orange-400/90
+                 border border-white/20
+                 hover:scale-105 hover:from-orange-400 hover:to-yellow-400 
+                 hover:shadow-lg transition-all duration-300"
+                  >
+                    <span className="relative z-10">Logout</span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-yellow-300/30 to-orange-500/30 blur-lg"></span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Mobile menu button (Outside flex ml-auto group to stay visible on mobile) */}
+            <div className="md:hidden ml-auto">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="flex flex-col space-y-1 p-2"
+              >
+                <span className={`w-6 h-0.5 bg-white transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
+                <span className={`w-6 h-0.5 bg-white transition-all duration-300 ${isMenuOpen ? 'opacity-0' : ''}`}></span>
+                <span className={`w-6 h-0.5 bg-white transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Navigation */}
+          {isMenuOpen && (
+            <div className="md:hidden bg-black/95 backdrop-blur-md border-t border-white/10 py-4">
+              <div className="flex flex-col space-y-4 px-4">
+                <form onSubmit={handleSearch} className="flex items-center bg-white/10 border border-white/15 rounded-full px-3 py-2">
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search packages"
+                    className="bg-transparent flex-1 text-white text-sm placeholder-white/60 focus:outline-none"
+                  />
+                  <button
+                    type="submit"
+                    className="text-white hover:text-yellow-300 transition-colors"
+                    aria-label="Search packages"
+                  >
+                    <i className="fas fa-search"></i>
+                  </button>
+                </form>
+                <Link
+                  href="/"
+                  className="text-white font-medium py-2 hover:text-yellow-400 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Home
+                </Link>
+                <Link
+                  href="/packages"
+                  className="text-white font-medium py-2 hover:text-yellow-400 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  All Packages
+                </Link>
+                <Link
+                  href="/categories"
+                  className="text-white font-medium py-2 hover:text-yellow-400 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Categories
+                </Link>
+                <Link
+                  href="/adventure"
+                  className="text-white font-medium py-2 hover:text-yellow-400 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Adventure
+                </Link>
+                <Link
+                  href="/about"
+                  className="text-white font-medium py-2 hover:text-yellow-400 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  About Us
+                </Link>
+                <Link
+                  href="/contact"
+                  className="text-white font-medium py-2 hover:text-yellow-400 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Contact Us
+                </Link>
+                {!currentUser && (
+                  <div className="flex flex-col space-y-2 pt-4 border-t border-white/10">
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => setShowAdminDropdown(!showAdminDropdown)}
+                        className="w-full bg-red-600/20 border border-red-400/30 text-red-400 px-4 py-2 rounded-full text-sm font-medium hover:bg-red-600/30 transition-colors flex items-center justify-between"
+                      >
+                        <span><i className="fas fa-lock mr-2"></i>Admin</span>
+                        <i className={`fas fa-chevron-down transition-transform ${showAdminDropdown ? 'rotate-180' : ''}`}></i>
+                      </button>
+                      {showAdminDropdown && (
+                        <div className="ml-4 space-y-2">
+                          <button
+                            onClick={() => {
+                              router.push('/admin');
+                              setIsMenuOpen(false);
+                              setShowAdminDropdown(false);
+                            }}
+                            className="w-full bg-red-600/10 border border-red-400/20 text-red-400 px-4 py-2 rounded-full text-sm font-medium hover:bg-red-600/20 transition-colors text-left"
+                          >
+                            <i className="fas fa-user-shield mr-2"></i>Admin
+                          </button>
+                          <button
+                            onClick={() => {
+                              router.push('/admin?role=miniadmin');
+                              setIsMenuOpen(false);
+                              setShowAdminDropdown(false);
+                            }}
+                            className="w-full bg-orange-600/10 border border-orange-400/20 text-orange-400 px-4 py-2 rounded-full text-sm font-medium hover:bg-orange-600/20 transition-colors text-left"
+                          >
+                            <i className="fas fa-shield-alt mr-2"></i>Mini Admin
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => {
+                        showLoginModal();
+                        setIsMenuOpen(false);
+                      }}
+                      className="bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-white/30 transition-colors"
+                    >
+                      Login
+                    </button>
+                    <button
+                      onClick={() => {
+                        showSignupModal();
+                        setIsMenuOpen(false);
+                      }}
+                      className="bg-gradient-to-r from-yellow-400 to-orange-400 text-black px-4 py-2 rounded-full text-sm font-semibold"
+                    >
+                      Sign Up
                     </button>
                   </div>
                 )}
-                <span className="text-sm text-gray-700">{currentUser.name || currentUser.email}</span>
-                <button onClick={logout} className="text-sm font-medium text-red-500 hover:text-red-600">Logout</button>
               </div>
-            ) : (
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2">
-                  <button onClick={showLoginModal} className="text-sm font-medium text-gray-700 hover:text-gray-900">Log in</button>
-                  <button onClick={showSignupModal} className="text-sm font-semibold text-white bg-yellow-400 px-3 py-1 rounded-md hover:bg-yellow-500">Sign up</button>
-                </div>
-                <div className="w-px h-6 bg-gray-300"></div>
-                <button onClick={() => setShowAdminAuth(true)} className="text-sm font-medium text-white bg-red-600 hover:bg-red-700 px-3 py-1 rounded-md transition-colors">
-                  Admin
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Admin Auth Modal */}
-      {showAdminAuth && (
-        <div className="fixed inset-0 bg-black/50 z-50" onClick={() => setShowAdminAuth(false)}>
-          <div className="flex items-center justify-center min-h-screen px-4" onClick={(e) => e.stopPropagation()}>
-            <div className="w-full max-w-sm bg-white rounded-xl shadow-xl p-6 animate-fadeInUp">
-              <div className="text-center mb-6">
-                <h1 className="text-xl font-bold text-gray-900">Admin Access</h1>
-                <p className="text-gray-600 text-sm mt-1">Enter password to continue</p>
-              </div>
-
-              <form onSubmit={handleAdminAuth} className="space-y-4">
-                <div>
-                  <input
-                    type="password"
-                    id="admin-password"
-                    value={adminPassword}
-                    onChange={(e) => setAdminPassword(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
-                    placeholder="Enter admin password"
-                    required
-                  />
-                </div>
-
-                <div className="flex gap-2">
-                  <button
-                    type="submit"
-                    disabled={loadingAdminAuth}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-2 rounded-lg font-semibold transition-colors text-sm"
-                  >
-                    {loadingAdminAuth ? 'Verifying...' : 'Access'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowAdminAuth(false);
-                      setAdminPassword('');
-                    }}
-                    className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 rounded-lg font-semibold transition-colors text-sm"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
             </div>
-          </div>
+          )}
+        </div>
+      </nav>
+
+      {/* Admin Panel Button */}
+      {currentUser?.isAdmin && (
+        <div className="fixed top-20 right-5 z-20">
+          <Link
+            href="/admin"
+            className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-2 py-1 rounded-full text-sm font-semibold hover:from-indigo-600 hover:to-purple-500 transition-all duration-300 hover:-translate-y-0.5 shadow-lg hover:shadow-purple-500/30 flex items-center space-x-2"
+          >
+            <i className="fas fa-cog"></i>
+            <span>Admin Panel</span>
+          </Link>
         </div>
       )}
-    </header>
+    </>
+
   );
 }

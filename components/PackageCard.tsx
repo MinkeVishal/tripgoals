@@ -3,46 +3,69 @@
 import Link from 'next/link';
 import { getImageUrl } from '@/lib/appwrite';
 import { Package } from '@/types';
-import { useState } from 'react';
 
 interface PackageCardProps {
   package: Package;
 }
 
-const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&h=600&fit=crop&q=90';
-
 export default function PackageCard({ package: pkg }: PackageCardProps) {
-  const [imageSrc, setImageSrc] = useState(() => {
-    if (!pkg.imageId) return FALLBACK_IMAGE;
-    try {
-      return getImageUrl(pkg.imageId);
-    } catch (e) {
-      return FALLBACK_IMAGE;
-    }
-  });
+  // Parse amenities from "icon|name" format
+  const amenities = pkg.amenityIds?.map(a => {
+    const [icon, name] = a.split('|');
+    return { icon: icon || '', name: name || '' };
+  }).filter(a => a.icon && a.name) || [];
 
   return (
     <Link href={`/package/${pkg.$id}`}>
-      <div className="min-w-[180px] h-[200px] sm:min-w-[200px] sm:h-[220px] md:min-w-[240px] md:h-[250px] bg-white rounded-lg overflow-hidden shadow-lg transition-all duration-300 cursor-pointer hover:shadow-2xl hover:-translate-y-3 hover:scale-110 animate-fadeInUp group border border-white/10">
+      <div className="
+        min-w-[180px] h-[230px]
+        sm:min-w-[220px] sm:h-[260px]
+        md:min-w-[260px] md:h-[300px]
+        bg-white/95 rounded-2xl 
+        overflow-hidden shadow-lg transition-all duration-400 cursor-pointer 
+        relative flex-shrink-0
+        hover:shadow-xl
+      ">
         {/* Image */}
-        <div className="h-[100px] sm:h-[120px] md:h-[140px] overflow-hidden relative bg-gray-200">
-          <img 
-            src={imageSrc} 
+        <div className="h-[110px] sm:h-[130px] md:h-[160px] relative overflow-hidden bg-gray-100">
+          <img
+            src={getImageUrl(pkg.imageIds?.[0] || pkg.imageId)}
             alt={pkg.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-            style={{ backfaceVisibility: 'hidden', WebkitFontSmoothing: 'antialiased' }}
-            onError={() => setImageSrc(FALLBACK_IMAGE)}
+            className="w-full h-full object-cover"
           />
         </div>
-        
+
         {/* Text */}
-        <div className="px-4 py-3 relative z-10 bg-white h-[100px] sm:h-[110px] flex flex-col justify-center transition-all duration-300 group-hover:bg-gray-50">
-          <h3 className="text-base sm:text-sm md:text-base font-bold mb-1 text-gray-900 text-center transition-all duration-300 line-clamp-2">
+        <div className="px-3 py-2 bg-white h-[120px] sm:h-[130px] md:h-[140px] flex flex-col overflow-hidden relative">
+          <h3 className="text-xs sm:text-sm font-bold mb-0.5 text-black text-center line-clamp-1">
             {pkg.title}
           </h3>
-          <p className="text-sm sm:text-xs md:text-sm text-gray-600 leading-relaxed text-center transition-all duration-300 group-hover:text-gray-900 line-clamp-2">
-            {pkg.subtitle}
+          {pkg.subtitle && (
+            <p className="text-[10px] text-cyan-600 font-medium text-center mb-0.5 line-clamp-1">
+              {pkg.subtitle}
+            </p>
+          )}
+          <p className="text-[10px] text-black/90 text-center mb-1">
+            {pkg.duration}
           </p>
+
+          {/* Amenity Icons - show all on mobile */}
+          {amenities.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-1 mb-2">
+              {amenities.slice(0, 3).map((amenity, index) => (
+                <div key={index} className="flex items-center gap-0.5 bg-black/70 px-1.5 py-0.5 rounded-full">
+                  <i className={`${amenity.icon} text-yellow-400 text-[8px]`}></i>
+                  <span className="text-[8px] text-white/90 font-medium">{amenity.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="absolute bottom-2 left-0 right-0 flex justify-center">
+            <span className="bg-gradient-to-r from-yellow-400 to-orange-400 text-black text-[9px] sm:text-[10px] font-semibold px-3 py-1 rounded-full">
+              View Details
+            </span>
+          </div>
         </div>
       </div>
     </Link>

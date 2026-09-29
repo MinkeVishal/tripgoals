@@ -1,37 +1,51 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, FormEvent } from 'react';
 import FloatingButtons from './FloatingButtons';
-import { getBanner, getImageUrl } from '@/lib/appwrite';
-import { Banner } from '@/types';
-import { MapPin, Calendar, Clock, Sparkles } from 'lucide-react';
-
-const DESTINATIONS = [
-  'Kashmir',
-  'Goa',
-  'Kerala',
-  'Rajasthan',
-  'Himachal Pradesh',
-  'Varanasi',
-  'Agra',
-  'Darjeeling',
-];
-
-const DURATIONS = [
-  { label: '1-3 Days', value: '1-3' },
-  { label: '3-5 Days', value: '3-5' },
-  { label: '5-7 Days', value: '5-7' },
-  { label: '7-10 Days', value: '7-10' },
-  { label: '10+ Days', value: '10+' },
-];
+import { getBanner, getImageUrl, getPackages } from '@/lib/appwrite';
+import { Banner, Package } from '@/types';
+import { useRouter } from 'next/navigation';
 
 export default function Hero() {
-  const router = useRouter();
   const [banner, setBanner] = useState<Banner | null>(null);
-  const [destination, setDestination] = useState('');
-  const [startDate, setStartDate] = useState('');
+  const [fromDestination, setFromDestination] = useState('');
+  const [toDestination, setToDestination] = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const [duration, setDuration] = useState('');
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [carType, setCarType] = useState('');
+  const [customCar, setCustomCar] = useState('');
+  const [durations, setDurations] = useState<string[]>([]);
+  const router = useRouter();
+
+  // Array of images from public folder
+  const slideshowImages = [
+    '/1.jpeg',
+    '/2.jpeg',
+    '/3.jpeg',
+    '/4.jpeg',
+    '/5.jpeg',
+    '/6.jpeg',
+    '/7.jpeg',
+    '/8.jpeg',
+    '/9.jpeg',
+    '/10.jpeg',
+    '/11.jpeg',
+    '/12.jpeg',
+    '/13.jpeg',
+    '/14.jpeg',
+    '/15.jpeg',
+    '/16.jpeg',
+    '/17.jpeg',
+    '/18.jpeg',
+    '/19.jpeg',
+    '/20.jpeg',
+    '/21.jpeg',
+    '/22.jpeg',
+    '/23.jpeg',
+  ];
 
   useEffect(() => {
     const fetchBanner = async () => {
@@ -43,8 +57,28 @@ export default function Hero() {
       }
     };
 
+    const fetchDurations = async () => {
+      try {
+        const packagesData = await getPackages();
+        const uniqueDurations = [...new Set(packagesData.documents.map((pkg: Package) => pkg.duration).filter(Boolean))];
+        setDurations(uniqueDurations);
+      } catch (error) {
+        console.error('Error loading durations:', error);
+      }
+    };
+
     fetchBanner();
+    fetchDurations();
   }, []);
+
+  // Slideshow effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % slideshowImages.length);
+    }, 6000); // Change image every 6 seconds
+
+    return () => clearInterval(interval);
+  }, [slideshowImages.length]);
 
   const scrollToSection = (sectionId: string) => {
     const section = document.getElementById(sectionId);
@@ -56,102 +90,163 @@ export default function Hero() {
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
+  // Handles the lower form (destination, date, duration)
+  const handleSearch = (e: FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
-    if (destination) params.append('search', destination);
-    if (startDate) params.append('startDate', startDate);
+    if (fromDestination) params.append('from', fromDestination);
+    if (toDestination) params.append('to', toDestination);
+    if (fromDate) params.append('fromDate', fromDate);
+    if (toDate) params.append('toDate', toDate);
     if (duration) params.append('duration', duration);
-    
     router.push(`/packages?${params.toString()}`);
   };
 
-  const backgroundImage = banner?.backgroundImageId
-    ? getImageUrl(banner.backgroundImageId)
-    : 'https://images.unsplash.com/photo-1601333924055-f92c327e598b?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+  // Quick search handler
+  const handleQuickSearch = (e: FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/packages?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+
+  const backgroundImage = slideshowImages[currentImageIndex];
+
   return (
-    <section id="home" className="w-full relative mb-32">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* Banner Section - Left side */}
-        <div className="lg:col-span-2 h-[350px] flex items-center justify-center relative overflow-hidden rounded-xl">
-          {/* Background Image */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: `url(${backgroundImage})`,
-            }}
-          />
-          
-          {/* Dark Overlay */}
-          <div className="absolute inset-0 bg-black/40" />
-          
-          {/* Content */}
-          <div className="relative z-10 w-full max-w-3xl mx-auto text-center px-4">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3 drop-shadow-lg">{banner?.title || 'Discover Incredible India'}</h1>
-            <p className="text-base sm:text-lg text-white mb-6 drop-shadow-lg">{banner?.subtitle || 'Experience the magic of India with our travel packages'}</p>
+    <section
+      id="home"
+      className="w-full min-h-48 md:min-h-56 lg:h-96 flex items-center justify-center relative z-10 overflow-hidden pt-20 sm:pt-24 md:pt-28 lg:pt-16 pb-8 lg:pb-12"
+      style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', transition: 'background-image 0.8s ease-in-out' }}
+      suppressHydrationWarning
+    >
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/40" aria-hidden></div>
+      <div className="max-w-7xl mx-auto px-4 lg:px-5 relative z-20 w-full h-full flex flex-col items-center justify-center" suppressHydrationWarning>
 
-            <div className="flex justify-center gap-3">
-              <button onClick={() => scrollToSection('packages')} className="px-4 sm:px-6 py-2 bg-yellow-400 text-black rounded-lg font-semibold text-sm hover:bg-yellow-500 transition-all shadow-lg">{banner?.ctaLabel || 'Explore Packages'}</button>
-              <a href="/contact" className="px-4 sm:px-6 py-2 border-2 border-white rounded-lg text-sm text-white hover:bg-white/10 transition-all shadow-lg">Contact Us</a>
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-1 lg:gap-3 items-start lg:items-center w-full pt-2 md:pt-2 lg:pt-4" suppressHydrationWarning>
+          {/* Left Side - Title and Button */}
+          <div className="text-center lg:text-left py-2 lg:py-0">
+            <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold font-dancing-script text-white drop-shadow mb-1 lg:mb-2 animate-fade-in-up">
+              {banner?.title || 'Discover Incredible India'}
+            </h1>
+            <p className="text-xs md:text-sm lg:text-base text-yellow-200/95 mb-2 lg:mb-3 leading-relaxed animate-fade-in-up text-shadow-sm">
+              {banner?.subtitle || 'Experience the magic of India with our travel packages'}
+            </p>
+
+            <button
+              onClick={() => scrollToSection('packages')}
+              className="bg-gradient-to-r from-yellow-400 to-orange-400 text-black border-none px-4 lg:px-6 py-1.5 lg:py-2 text-xs lg:text-sm rounded-full cursor-pointer transition-all duration-300 font-semibold inline-flex items-center space-x-2 animate-fade-in-up hover:from-gray-200 hover:to-gray-400 hover:-translate-y-0.5 shadow-lg hover:shadow-black/40"
+            >
+              <span>{banner?.ctaLabel || 'Explore All Packages'}</span>
+              <i className="fas fa-arrow-right"></i>
+            </button>
           </div>
-        </div>
 
-        {/* Search Filter - Right side */}
-        <div className="lg:col-span-1 h-fit">
-          <form onSubmit={handleSearch} className="bg-white rounded-2xl shadow-2xl p-5 border-2 border-blue-100 sticky top-20">
-            <h3 className="text-base font-bold text-gray-900 mb-3 text-center">Find Your Holiday</h3>
-            <div className="space-y-2">
-              {/* Destination */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-0.5 uppercase tracking-wide">
-                  <MapPin className="inline h-3 w-3 mr-1" />
-                  Destination
-                </label>
-                <select
-                  value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
-                  className="w-full px-2.5 py-1.5 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none text-xs text-gray-700 font-medium transition-all"
-                >
-                  <option value="">Select...</option>
-                  {DESTINATIONS.map((dest) => (
-                    <option key={dest} value={dest}>
-                      {dest}
-                    </option>
-                  ))}
-                </select>
+          {/* Right Side - Search Form */}
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg lg:rounded-xl p-2 lg:p-3 shadow-lg animate-fade-in-up max-w-sm lg:max-w-none">
+            <h3 className="text-xs lg:text-sm font-bold text-white mb-1.5 lg:mb-2">Search Your Dream Place</h3>
+
+            {/* Quick Search Bar */}
+            <form onSubmit={handleQuickSearch} className="relative mb-3">
+              <i className="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-white/60 text-xs"></i>
+              <input
+                type="text"
+                placeholder="Search packages..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-white/20 border border-white/30 text-white rounded-lg pl-8 pr-20 py-2 focus:outline-none focus:border-yellow-400 focus:bg-white/30 transition-all duration-300 placeholder-white/50 text-xs"
+              />
+              <button
+                type="submit"
+                className="absolute right-1 top-1/2 -translate-y-1/2 bg-gradient-to-r from-yellow-400 to-orange-400 text-black font-semibold px-3 py-1 rounded-md hover:from-orange-400 hover:to-yellow-400 transition-all duration-300 text-xs"
+              >
+                Search
+              </button>
+            </form>
+
+
+            <form onSubmit={handleSearch} className="space-y-1 lg:space-y-1.5">
+              {/* From Where and To Where */}
+              <div className="flex items-end gap-2">
+                <div className="flex flex-col flex-1">
+                  <label className="text-white text-xs font-semibold mb-0.5">From</label>
+                  <select
+                    value={fromDestination}
+                    onChange={(e) => setFromDestination(e.target.value)}
+                    className="bg-white/20 border border-white/30 text-black rounded-lg px-2 py-1.5 focus:outline-none focus:border-yellow-400 focus:bg-white/30 transition-all duration-300 placeholder-white/50 text-xs w-full"
+                  >
+                    <option value="">Select...</option>
+                    <option value="Delhi">Delhi</option>
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="Bangalore">Bangalore</option>
+                    <option value="Chennai">Chennai</option>
+                    <option value="Kolkata">Kolkata</option>
+                    <option value="Hyderabad">Hyderabad</option>
+                    <option value="Ahmedabad">Ahmedabad</option>
+                    <option value="Pune">Pune</option>
+                  </select>
+                </div>
+
+                <span className="text-white text-xs font-semibold pb-2">To</span>
+
+                <div className="flex flex-col flex-1">
+                  <label className="text-white text-xs font-semibold mb-0.5">Where</label>
+                  <select
+                    value={toDestination}
+                    onChange={(e) => setToDestination(e.target.value)}
+                    className="bg-white/20 border border-white/30 text-black rounded-lg px-2 py-1.5 focus:outline-none focus:border-yellow-400 focus:bg-white/30 transition-all duration-300 placeholder-white/50 text-xs w-full"
+                  >
+                    <option value="">Select...</option>
+                    <option value="Goa">Goa</option>
+                    <option value="Kerala">Kerala</option>
+                    <option value="Rajasthan">Rajasthan</option>
+                    <option value="Kashmir">Kashmir</option>
+                    <option value="Himachal">Himachal Pradesh</option>
+                    <option value="Tamil Nadu">Tamil Nadu</option>
+                    <option value="Uttarakhand">Uttarakhand</option>
+                    <option value="West Bengal">West Bengal</option>
+                  </select>
+                </div>
               </div>
 
-              {/* Start Date */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-0.5 uppercase tracking-wide">
-                  <Calendar className="inline h-3 w-3 mr-1" />
-                  From
-                </label>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full px-2.5 py-1.5 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none text-xs text-gray-700 font-medium transition-all"
-                />
+              {/* Start Date and End Date */}
+              <div className="flex items-end gap-2">
+                <div className="flex flex-col flex-1">
+                  <label className="text-white text-xs font-semibold mb-0.5">Start Date</label>
+                  <input
+                    type="date"
+                    value={fromDate}
+                    onChange={(e) => setFromDate(e.target.value)}
+                    className="bg-white/20 border border-white/30 text-white rounded-lg px-2 py-1.5 focus:outline-none focus:border-yellow-400 focus:bg-white/30 transition-all duration-300 placeholder-white/50 text-xs w-full"
+                    placeholder="dd-mm-yyyy"
+                  />
+                </div>
+
+                <span className="text-white text-xs font-semibold pb-2">To</span>
+
+                <div className="flex flex-col flex-1">
+                  <label className="text-white text-xs font-semibold mb-0.5">End Date</label>
+                  <input
+                    type="date"
+                    value={toDate}
+                    onChange={(e) => setToDate(e.target.value)}
+                    className="bg-white/20 border border-white/30 text-white rounded-lg px-2 py-1.5 focus:outline-none focus:border-yellow-400 focus:bg-white/30 transition-all duration-300 placeholder-white/50 text-xs w-full"
+                    placeholder="dd-mm-yyyy"
+                  />
+                </div>
               </div>
 
-              {/* Duration */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-0.5 uppercase tracking-wide">
-                  <Clock className="inline h-3 w-3 mr-1" />
-                  Duration
-                </label>
+              {/* Duration Select */}
+              <div className="flex flex-col">
+                <label className="text-white text-xs font-semibold mb-0.5">Duration</label>
                 <select
                   value={duration}
                   onChange={(e) => setDuration(e.target.value)}
-                  className="w-full px-2.5 py-1.5 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none text-xs text-gray-700 font-medium transition-all"
+                  className="bg-white/20 border border-white/30 text-black rounded-lg px-2 py-1.5 focus:outline-none focus:border-yellow-400 focus:bg-white/30 transition-all duration-300 placeholder-white/50 text-xs"
                 >
                   <option value="">Select...</option>
-                  {DURATIONS.map((dur) => (
-                    <option key={dur.value} value={dur.value}>
-                      {dur.label}
-                    </option>
+                  {durations.map((dur) => (
+                    <option key={dur} value={dur}>{dur}</option>
                   ))}
                 </select>
               </div>
@@ -159,24 +254,16 @@ export default function Hero() {
               {/* Search Button */}
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-1.5 px-3 rounded-lg transition-all duration-300 hover:shadow-lg text-xs mt-1"
+                className="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-black font-semibold px-3 py-1.5 rounded-lg hover:from-orange-400 hover:to-yellow-400 transition-all duration-300 hover:-translate-y-0.5 shadow-lg hover:shadow-yellow-400/30 flex items-center justify-center space-x-2 text-xs mt-1 lg:mt-2"
               >
-                Search
+                <i className="fas fa-search"></i>
+                <span>Search</span>
               </button>
-
-              {/* Explore Themes Link */}
-              <button
-                type="button"
-                onClick={() => router.push('/categories')}
-                className="w-full flex items-center justify-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-semibold transition-colors py-1.5"
-              >
-                <Sparkles className="h-3.5 w-3.5" />
-                Explore Themes
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
+      <FloatingButtons />
     </section>
   );
 }

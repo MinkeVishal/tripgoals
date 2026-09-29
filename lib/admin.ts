@@ -4,7 +4,7 @@ import { Package, Category, Banner } from '@/types';
 const adminClient = new Client()
   .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
   .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!)
-  // .setKey(process.env.APPWRITE_API_KEY!);
+// .setKey(process.env.APPWRITE_API_KEY!);
 
 const adminDatabases = new Databases(adminClient);
 const adminStorage = new Storage(adminClient);
@@ -16,10 +16,13 @@ export const STORAGE_BUCKET_ID = '68cbee510018bf68f24c';
 export const BANNERS_COLLECTION_ID = 'banners';
 
 // Type for creating packages (excluding Appwrite document properties)
-type CreatePackageData = Pick<Package, 'title' | 'subtitle' | 'days' | 'category' | 'imageId' | 'description' | 'whatsIncluded' | 'section'>;
+type CreatePackageData = Omit<Pick<Package, 'title' | 'subtitle' | 'duration' | 'category' | 'imageId' | 'description' | 'whatsIncluded' | 'itinerary' | 'section'>, 'price'> & {
+  price: number | string;
+  imageIds?: string[];
+};
 
 // Type for creating categories (excluding Appwrite document properties)
-type CreateCategoryData = Pick<Category, 'name' | 'description' | 'imageId'>;
+type CreateCategoryData = Pick<Category, 'name' | 'description' | 'imageId' | 'subtitle' | 'price' | 'duration' | 'whatsIncluded'>;
 
 type BannerData = Pick<Banner, 'title' | 'subtitle' | 'ctaLabel' | 'backgroundImageId'>;
 
@@ -83,4 +86,29 @@ export const uploadImage = async (file: File) => {
 
 export const deleteImage = async (imageId: string) => {
   return await adminStorage.deleteFile(STORAGE_BUCKET_ID, imageId);
+};
+
+// Amenity CRUD operations
+export const AMENITIES_COLLECTION_ID = 'amenities';
+
+type CreateAmenityData = {
+  name: string;
+  icon: string;
+};
+
+export const createAmenity = async (amenityData: CreateAmenityData) => {
+  return await adminDatabases.createDocument(
+    DATABASE_ID,
+    AMENITIES_COLLECTION_ID,
+    ID.unique(),
+    amenityData
+  );
+};
+
+export const updateAmenity = async (id: string, amenityData: Partial<CreateAmenityData>) => {
+  return await adminDatabases.updateDocument(DATABASE_ID, AMENITIES_COLLECTION_ID, id, amenityData);
+};
+
+export const deleteAmenity = async (id: string) => {
+  return await adminDatabases.deleteDocument(DATABASE_ID, AMENITIES_COLLECTION_ID, id);
 };
