@@ -1,119 +1,57 @@
 import './globals.css';
-import type { Metadata } from 'next';
-import { Suspense } from 'react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import FloatingButtons from '@/components/FloatingButtons';
-import AuthModals from '@/components/AuthModals';
-import { Toaster } from 'react-hot-toast';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Keep this
+import type { Metadata, Viewport } from 'next';
+import { Geist } from 'next/font/google';
+import { ThemeProvider } from 'next-themes';
+import { MotionProvider } from '@/components/motion/motion-provider';
+import { JsonLd } from '@/components/site/json-ld';
+import { Toaster } from '@/components/ui/sonner';
+import { DEFAULT_SHARE_IMAGE, graph, organizationLd, websiteLd } from '@/lib/seo';
+import { siteConfig } from '@/lib/site-config';
+
+const sans = Geist({ subsets: ['latin'], variable: '--font-geist', display: 'swap' });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://tripgoals.co.in'),
-  title: 'TripGoals - Discover Incredible India',
-  description: 'Experience the magic of India with our travel packages',
-  keywords: 'travel, vacation, tours, packages, adventure, India, Kashmir, Kerala, Rajasthan',
-  icons: {
-    icon: '/Tripgoal_logo.png',
-    shortcut: '/Tripgoal_logo.png',
-    apple: '/Tripgoal_logo.png',
-  },
+  metadataBase: new URL(siteConfig.url),
+  title: { default: `${siteConfig.name} | India Tour Packages, Treks & Adventure Trips`, template: `%s | ${siteConfig.name}` },
+  description: siteConfig.description,
+  keywords: ['travel', 'India tour packages', 'Kashmir', 'Kerala', 'Rajasthan', 'Goa', 'adventure', 'Aurangabad', 'Chhatrapati Sambhajinagar', 'Maharashtra', 'India'],
+  applicationName: siteConfig.name,
+  authors: [{ name: siteConfig.name, url: siteConfig.url }],
+  creator: siteConfig.name,
+  publisher: siteConfig.name,
+  category: 'travel',
+  formatDetection: { telephone: true, email: true, address: false },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 } },
   openGraph: {
-    title: 'TripGoals - Discover Incredible India',
-    description: 'Experience the magic of India with our travel packages',
-    url: 'https://tripgoals.co.in',
-    siteName: 'TripGoals',
-    images: [
-      {
-        url: '/Tripgoal_logo.png',
-        width: 512,
-        height: 512,
-        alt: 'TripGoals Logo',
-      },
-    ],
-    locale: 'en_IN',
     type: 'website',
+    siteName: siteConfig.name,
+    locale: 'en_IN',
+    url: '/',
+    title: `${siteConfig.name} | India Tour Packages, Treks & Adventure Trips`,
+    description: siteConfig.description,
+    images: [DEFAULT_SHARE_IMAGE],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'TripGoals - Discover Incredible India',
-    description: 'Experience the magic of India with our travel packages',
-    images: ['/Tripgoal_logo.png'],
-  },
+  twitter: { card: 'summary_large_image', images: [DEFAULT_SHARE_IMAGE.url] },
+  icons: { icon: '/Tripgoal_logo.png', apple: '/Tripgoal_logo.png' },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#fbfcfa' },
+    { media: '(prefers-color-scheme: dark)', color: '#141a12' },
+  ],
+  colorScheme: 'light dark',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* Favicon */}
-        <link rel="icon" href="/Tripgoal_logo.png" type="image/png" />
-        <link rel="icon" href="/Tripgoal_logo.png" sizes="32x32" type="image/png" />
-        <link rel="icon" href="/Tripgoal_logo.png" sizes="16x16" type="image/png" />
-        <link rel="apple-touch-icon" href="/Tripgoal_logo.png" />
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#f59e0b" />
-        
-        {/* Structured Data for Google */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              "name": "TripGoals",
-              "url": "https://tripgoals.co.in",
-              "logo": "https://tripgoals.co.in/Tripgoal_logo.png",
-              "sameAs": [],
-              "contactPoint": {
-                "@type": "ContactPoint",
-                "telephone": "+91-XXXXXXXXXX",
-                "contactType": "customer service"
-              }
-            })
-          }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebSite",
-              "name": "TripGoals",
-              "url": "https://tripgoals.co.in",
-              "potentialAction": {
-                "@type": "SearchAction",
-                "target": "https://tripgoals.co.in/packages?search={search_term_string}",
-                "query-input": "required name=search_term_string"
-              }
-            })
-          }}
-        />
-        
-        {/* Google Fonts */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
-          crossOrigin="anonymous"
-          referrerPolicy="no-referrer"
-        />
-      </head>
-      <body className="font-poppins" suppressHydrationWarning>
-        <div className="unified-background min-h-screen">
-          <Suspense fallback={<div className="h-16" />}>
-            <Header />
-          </Suspense>
-          <main>{children}</main>
-          <Footer />
-          <FloatingButtons />
-          <AuthModals />
-          <Toaster position="top-right" />
-        </div>
+    <html lang="en-IN" suppressHydrationWarning className={sans.variable}>
+      <body>
+        <JsonLd data={graph(organizationLd(), websiteLd())} />
+        <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
+          <MotionProvider>{children}</MotionProvider>
+          <Toaster position="top-center" richColors closeButton />
+        </ThemeProvider>
       </body>
     </html>
   );
