@@ -1,0 +1,5 @@
+{
+  "enabledPlugins": {
+    "appwrite@claude-plugins-official": true
+  }
+}

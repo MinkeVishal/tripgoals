@@ -1,136 +1,61 @@
-# TripGoals - Travel Website
+# TripGoals
 
-A comprehensive travel booking website built with Next.js, featuring a customer-facing interface and admin panel for package management.
+Travel agency website: public catalogue (packages, categories, adventures), customer accounts with a wishlist, and an admin dashboard. Built with Next.js 16 (App Router), Tailwind CSS v4 and Appwrite.
 
-## Features
-
-### Customer Features
-- **Landing Page**: Hero section with animated slideshow, popular packages, special offers, and categories
-- **Package Details**: Comprehensive package information with WhatsApp integration for booking inquiries
-- **Categories**: Filterable package listings with search functionality
-- **Responsive Design**: Optimized for all devices (mobile, tablet, desktop)
-- **Floating Contact Buttons**: WhatsApp and Instagram integration
-
-### Admin Features
-- **Dashboard**: Overview with package statistics
-- **Package Management**: Full CRUD operations for travel packages
-- **Category Management**: Organize packages by categories
-- **Image Upload**: Integrated file storage with Appwrite
-- **Authentication**: Password-protected admin access
-
-## Tech Stack
-
-- **Frontend**: Next.js 15+, TypeScript, Tailwind CSS
-- **Backend**: Appwrite (Database, Storage, Authentication)
-- **Forms**: Formik with Zod validation
-- **UI**: Custom components with modern design
-- **Icons**: Lucide React
-
-## Setup Instructions
-
-### 1. Environment Variables
-
-Create a `.env.local` file with the following variables:
-
-```env
-NEXT_PUBLIC_APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
-NEXT_PUBLIC_APPWRITE_PROJECT_ID=your_project_id
-APPWRITE_API_KEY=your_api_key
-ADMIN_PASSWORD=your_admin_password
-WHATSAPP_PHONE_NUMBER=+1234567890
-```
-
-### 2. Appwrite Setup
-
-1. Create an account at [Appwrite Cloud](https://cloud.appwrite.io)
-2. Create a new project
-3. Get your Project ID and API Key from the project settings
-
-### 3. Database Configuration
-
-Create the following collections in Appwrite:
-
-#### Packages Collection (`packages`)
-- `title` (String, Required)
-- `subtitle` (String, Required)
-- `days` (Integer, Required)
-- `category` (String, Required)
-- `imageId` (String, Required)
-- `description` (String, Required)
-- `whatsIncluded` (String Array, Required)
-- `section` (String, Required) - Enum: popular, special, other
-- `createdAt` (DateTime, Required)
-
-#### Categories Collection (`categories`)
-- `name` (String, Required)
-- `description` (String, Required)
-- `imageId` (String, Required)
-
-### 4. Storage Configuration
-
-Create a storage bucket named `images` for package and category images.
-
-### 5. Install Dependencies
+## Setup
 
 ```bash
 npm install
+cp .env.example .env   # then fill in the values
+npm run dev            # http://localhost:3000
 ```
 
-### 6. Run Development Server
+Environment variables (see `.env.example`):
+
+| Variable | Purpose |
+|---|---|
+| `NEXT_PUBLIC_APPWRITE_ENDPOINT`, `NEXT_PUBLIC_APPWRITE_PROJECT_ID` | Appwrite project |
+| `APPWRITE_API_KEY` | Server-only key. Never exposed to the browser |
+| `NEXT_PUBLIC_SITE_URL` | Canonical URL (sitemap, metadata) |
+| `NEXT_PUBLIC_WHATSAPP_NUMBER`, `NEXT_PUBLIC_INSTAGRAM_URL`, `NEXT_PUBLIC_INSTAGRAM_REEL_URL` | Contact / social links |
+
+## Roles
+
+Roles are Appwrite user **labels**. No label means Customer.
+
+| Role | Can do |
+|---|---|
+| Customer | Wishlist, account (name, phone, password) |
+| Editor (`editor`) | Admin panel: create and edit packages, adventures, categories. No delete, banners or users |
+| Admin (`admin`) | Everything, including banners and users (change roles, delete) |
+
+All writes go through server actions that check the role first. The browser never has write access to Appwrite.
+
+Give someone a role:
 
 ```bash
-npm run dev
+npx tsx --env-file=.env scripts/grant-role.ts someone@example.com admin
 ```
 
-## Deployment
+## Scripts
 
-### Build for Production
+- `npm run dev` / `build` / `start`: run the app
+- `npm run lint`, `npm run typecheck`: checks
+- `scripts/backup-appwrite.mjs`: exports the database to `appwrite/backup/` (gitignored)
+- `scripts/migrate-v2.ts`: additive schema migration (`--apply` to run; safe to re-run, the old site keeps working)
+- `scripts/cutover-v2.ts`: final step once v2 is live (`--apply`): seeds adventures and banners, locks table and bucket permissions to public read, removes the legacy `users` table
+- `scripts/grant-role.ts <email> <admin|editor|customer>`
 
-```bash
-npm run build
-```
+## Going live (order)
 
-### Deploy to Vercel
+1. Back up, then run the migration.
+2. Deploy to Vercel with the env vars above.
+3. Run the cutover.
+4. Sign up on the site, then grant yourself `admin` with `grant-role.ts`.
+5. In the Appwrite console, set the password policy and the recovery URL to `<site>/reset-password`.
 
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Add the environment variables in Vercel dashboard
-4. Deploy
+## Notes
 
-## Usage
-
-### Customer Interface
-- Browse packages on the homepage
-- View detailed package information
-- Contact via WhatsApp for bookings
-- Filter packages by categories
-
-### Admin Panel
-- Access at `/admin` with your admin password
-- Create and manage travel packages
-- Upload images for packages and categories
-- Organize packages into different sections (popular, special)
-
-## Security Features
-
-- Password-protected admin access
-- Session timeout (1 hour)
-- Input validation with Zod schemas
-- Secure file uploads through Appwrite
-
-## Customization
-
-### Styling
-- Modify `tailwind.config.ts` for color schemes
-- Update `app/globals.css` for custom animations
-- Customize components in the `/components` directory
-
-### Business Logic
-- Update contact information in environment variables
-- Modify package sections and categories as needed
-- Customize form validation in component files
-
-## Support
-
-For issues or questions, please refer to the documentation or contact the development team.
-Tripgoals
+- Old links `/package/:id` and `/category/:name` redirect (308) to the new slug URLs.
+- Images are served from Appwrite and optimised by `next/image`.
+- Next.js docs for this version ship in `node_modules/next/dist/docs/` (see `AGENTS.md`).

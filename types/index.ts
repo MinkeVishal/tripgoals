@@ -1,55 +1,82 @@
-import { Models } from 'appwrite';
+export const SECTIONS = ['popular', 'special', 'adventure', 'other'] as const;
+export type Section = (typeof SECTIONS)[number];
 
-export interface Package extends Models.Document {
+export const ROLES = ['customer', 'editor', 'admin'] as const;
+export type Role = (typeof ROLES)[number];
+
+export interface ItineraryDay {
+  title: string;
+  points: string[];
+}
+
+export interface Amenity {
+  /** Key into AMENITY_ICONS (lib/parsers/amenities.ts). */
+  icon: string;
+  label: string;
+}
+
+export interface TravelPackage {
+  id: string;
+  slug: string;
   title: string;
   subtitle: string;
-  duration: string;
-  category: string;
-  imageId: string;
-  imageIds?: string[]; // Multiple images support
+  section: Section;
+  price: number;
+  nights: number | null;
+  days: number | null;
+  /** Human label, e.g. "5 Nights / 6 Days" or "1 Day". Empty when unknown. */
+  durationLabel: string;
+  destination: string;
   description: string;
-  whatsIncluded: string[];
-  itinerary?: string[];
-  section: string;
-  price: string;
-  createdAt: string;
-  amenityIds?: string[]; // Amenity icons associated with this package
+  /** Appwrite file ids; first is the cover. */
+  images: string[];
+  itinerary: ItineraryDay[];
+  inclusions: string[];
+  amenities: Amenity[];
+  order: number;
+  categoryId: string | null;
+  categoryName: string;
+  categorySlug: string | null;
+  updatedAt: string;
 }
 
-export interface Amenity extends Models.Document {
-  name: string;
-  icon: string; // FontAwesome icon class (e.g., 'fas fa-utensils')
+export interface CategoryStats {
+  count: number;
+  minPrice: number | null;
+  minDays: number | null;
+  maxDays: number | null;
 }
 
-export interface Category extends Models.Document {
+export interface Category {
+  id: string;
+  slug: string;
   name: string;
-  subtitle?: string;
+  subtitle: string;
   description: string;
-  imageId: string;
-  image?: string; // For hardcoded / external images
-  price?: string;
-  duration?: string;
-  whatsIncluded?: string[];
+  imageId: string | null;
+  order: number;
+  stats: CategoryStats;
 }
 
-export interface User extends Models.Document {
-  FullName: string;
-  number?: string;
-  password?: string;
-  email: string;
-  role?: 'admin' | 'user';
-  lastLogin?: string;
-}
-
-// Make document meta optional to avoid compile issues for local samples
-export type Banner = Partial<Models.Document> & {
+export interface Banner {
+  key: 'hero' | 'promo';
   title: string;
   subtitle: string;
   ctaLabel: string;
-  backgroundImageId: string;
-};
-
-export interface AdminAuthState {
-  isAuthenticated: boolean;
-  timestamp: number;
+  ctaUrl: string;
+  imageIds: string[];
+  active: boolean;
 }
+
+export interface SessionUser {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: Role;
+  createdAt: string;
+}
+
+export type ActionResult<T = undefined> =
+  | { ok: true; data: T }
+  | { ok: false; error: string; fieldErrors?: Record<string, string> };

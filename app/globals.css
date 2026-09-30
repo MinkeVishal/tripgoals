@@ -1,168 +1,226 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap');
+@custom-variant dark (&:is(.dark *));
 
-
+/*
+ * Design tokens: calm, light, editorial. One accent (forest green) on green-tinted neutrals.
+ * Everything visual reads from these variables.
+ */
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --radius: 1rem;
+
+  --background: oklch(0.993 0.002 120);
+  --foreground: oklch(0.2 0.018 135);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.018 135);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.018 135);
+  --primary: oklch(0.35 0.072 132); /* forest / olive */
+  --primary-foreground: oklch(0.985 0.006 120);
+  --secondary: oklch(0.958 0.008 125);
+  --secondary-foreground: oklch(0.27 0.03 135);
+  --muted: oklch(0.965 0.005 120);
+  --muted-foreground: oklch(0.5 0.014 130);
+  --accent: oklch(0.945 0.022 128);
+  --accent-foreground: oklch(0.3 0.06 138);
+  --destructive: oklch(0.58 0.2 27);
+  --border: oklch(0.918 0.006 120);
+  --input: oklch(0.905 0.007 120);
+  --ring: oklch(0.52 0.09 132);
+
+  /* Brand surfaces */
+  --forest-950: oklch(0.29 0.058 132);
+  --forest-900: oklch(0.33 0.065 132);
+  --forest-800: oklch(0.3 0.066 132);
+  --forest-600: oklch(0.44 0.085 132);
+  --moss-200: oklch(0.9 0.075 125);
+  --moss-400: oklch(0.78 0.12 128);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+.dark {
+  --background: oklch(0.17 0.018 138);
+  --foreground: oklch(0.96 0.006 120);
+  --card: oklch(0.205 0.022 138);
+  --card-foreground: oklch(0.96 0.006 120);
+  --popover: oklch(0.205 0.022 138);
+  --popover-foreground: oklch(0.96 0.006 120);
+  --primary: oklch(0.82 0.1 128);
+  --primary-foreground: oklch(0.2 0.035 138);
+  --secondary: oklch(0.25 0.025 138);
+  --secondary-foreground: oklch(0.96 0.006 120);
+  --muted: oklch(0.235 0.022 138);
+  --muted-foreground: oklch(0.72 0.02 130);
+  --accent: oklch(0.27 0.035 138);
+  --accent-foreground: oklch(0.96 0.006 120);
+  --destructive: oklch(0.66 0.2 25);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(0.7 0.1 128);
+}
+
+@theme {
+  --animate-marquee: marquee 40s linear infinite;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
   }
 }
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+@theme inline {
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-forest-950: var(--forest-950);
+  --color-forest-900: var(--forest-900);
+  --color-forest-800: var(--forest-800);
+  --color-forest-600: var(--forest-600);
+  --color-moss-200: var(--moss-200);
+  --color-moss-400: var(--moss-400);
+
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 6px);
+  --radius-lg: calc(var(--radius) - 2px);
+  --radius-xl: var(--radius);
+  --radius-2xl: calc(var(--radius) + 6px);
+  --radius-3xl: calc(var(--radius) + 12px);
+}
+
+/* Page gutter + max width, shared by every section so edges line up. */
+@utility shell {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 84rem;
+  padding-inline: 1rem;
+  @media (width >= 40rem) {
+    padding-inline: 1.5rem;
   }
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+  @media (width >= 64rem) {
+    padding-inline: 2.5rem;
   }
+}
+
+/* Small uppercase label above section titles. */
+@utility eyebrow {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border outline-ring/50;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: auto; /* Lenis owns smooth scrolling */
   }
   body {
-    @apply bg-background text-foreground;
-    font-family: 'Poppins', sans-serif;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: 'ss01', 'cv11';
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 22%, transparent);
   }
 }
 
-/* Custom animations */
-@keyframes backgroundMove {
-  0%, 100% { 
-    background-position: center center;
-    background-size: 120% 120%;
-  }
-  25% { 
-    background-position: left top;
-    background-size: 125% 125%;
-  }
-  50% { 
-    background-position: right center;
-    background-size: 115% 115%;
-  }
-  75% { 
-    background-position: center bottom;
-    background-size: 130% 130%;
-  }
-}
-
-@keyframes gradientShift {
-  0%, 100% { opacity: 0.8; }
-  50% { opacity: 0.6; }
-}
-
-@keyframes fadeInUp {
+@keyframes hero-settle {
   from {
-    opacity: 0;
-    transform: translateY(30px);
+    transform: scale(1.12);
   }
   to {
-    opacity: 1;
-    transform: translateY(0);
+    transform: scale(1);
   }
 }
 
-@keyframes modalSlideIn {
+@keyframes hero-progress {
   from {
-    opacity: 0;
-    transform: translateY(-50px);
+    transform: scaleX(0);
   }
   to {
-    opacity: 1;
-    transform: translateY(0);
+    transform: scaleX(1);
   }
 }
 
-.animate-background-move {
-  animation: backgroundMove 30s ease-in-out infinite;
+/* On pages that end with a photo fading into the footer, join the two seamlessly. */
+main:has([data-footer-lead]) + footer [data-footer-card] {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 
-.animate-gradient-shift {
-  animation: gradientShift 20s ease-in-out infinite;
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
 }
-
-.animate-fade-in-up {
-  animation: fadeInUp 1s ease-out;
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
 }
-
-.animate-modal-slide-in {
-  animation: modalSlideIn 0.3s ease-out;
-}
-
-/* Hide scrollbar but allow scrolling */
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-/* Line clamp utilities */
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+.lenis.lenis-stopped {
   overflow: hidden;
+}
+
+/* Card → detail image morph (React <ViewTransition share="morph">). */
+::view-transition-group(.morph) {
+  animation-duration: 520ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+::view-transition-image-pair(.morph) {
+  animation-name: via-blur;
+}
+@keyframes via-blur {
+  35% {
+    filter: blur(4px);
+  }
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 260ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }
