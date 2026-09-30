@@ -6,7 +6,7 @@ Travel agency website: public catalogue (packages, categories, adventures), cust
 
 ```bash
 npm install
-cp .env.example .env   # then fill in the values
+cp .env.example .env  
 npm run dev            # http://localhost:3000
 ```
 
