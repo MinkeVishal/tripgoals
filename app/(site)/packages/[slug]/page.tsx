@@ -107,7 +107,7 @@ export default async function PackagePage({ params }: Props) {
 
           <Reveal>
             <Tabs defaultValue="overview" className="gap-8">
-              <TabsList className="bg-muted h-auto w-full justify-start gap-1 overflow-x-auto rounded-full p-1 sm:w-fit">
+              <TabsList className="bg-muted grid h-auto w-full group-data-[orientation=horizontal]/tabs:h-auto grid-cols-3 gap-1 rounded-full p-1 sm:inline-flex sm:w-fit">
                 {[
                   ['overview', 'Overview'],
                   ['itinerary', `Itinerary${pkg.itinerary.length ? ` (${pkg.itinerary.length})` : ''}`],
@@ -116,7 +116,7 @@ export default async function PackagePage({ params }: Props) {
                   <TabsTrigger
                     key={value}
                     value={value!}
-                    className="data-[state=active]:bg-background text-muted-foreground data-[state=active]:text-foreground h-10 flex-none rounded-full px-5 text-sm data-[state=active]:shadow-sm"
+                    className="data-[state=active]:bg-background text-muted-foreground data-[state=active]:text-foreground h-10 w-full rounded-full px-2 text-sm data-[state=active]:shadow-sm sm:w-auto sm:flex-none sm:px-5"
                   >
                     {label}
                   </TabsTrigger>
@@ -144,7 +144,7 @@ export default async function PackagePage({ params }: Props) {
                     {pkg.itinerary.map((day, i) => (
                       <li key={i}>
                         <Reveal y={16} delay={Math.min(i, 6) * 0.04} className="relative flex gap-5">
-                          <span className="bg-primary text-primary-foreground ring-background relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-medium tabular-nums ring-4">
+                          <span className="bg-primary text-primary-foreground ring-background relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-medium tabu[...]
                             {i + 1}
                           </span>
                           <div className="min-w-0 flex-1 pb-6">
@@ -271,3 +271,4 @@ export default async function PackagePage({ params }: Props) {
     </>
   );
 }
+

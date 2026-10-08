@@ -24,7 +24,7 @@ export function CardCarousel({
   // Embla is an external store: subscribe to it instead of mirroring its state in an effect.
   const subscribe = useCallback(
     (notify: () => void) => {
-      if (!api) return () => {};
+      if (!api) return () => { };
       api.on('select', notify).on('reInit', notify).on('scroll', notify);
       return () => {
         api.off('select', notify).off('reInit', notify).off('scroll', notify);
@@ -42,7 +42,7 @@ export function CardCarousel({
   const canNext = (flags & 2) !== 0;
 
   const arrow =
-    'bg-background text-foreground ring-border hover:bg-primary hover:text-primary-foreground absolute top-[38%] z-20 hidden size-12 -translate-y-1/2 items-center justify-center rounded-full shadow-lg ring-1 transition duration-300 disabled:pointer-events-none disabled:opacity-0 md:flex';
+    'bg-background text-foreground ring-border hover:bg-primary hover:text-primary-foreground absolute top-[38%] z-20 hidden size-12 -translate-y-1/2 items-center justify-center rounded-full shadow-[0_12px_30px_-16px_rgba(15,24,42,0.45)] sm:flex';
 
   return (
     <div
@@ -73,3 +73,4 @@ export function CardCarousel({
     </div>
   );
 }
+
