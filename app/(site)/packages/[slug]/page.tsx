@@ -144,7 +144,7 @@ export default async function PackagePage({ params }: Props) {
                     {pkg.itinerary.map((day, i) => (
                       <li key={i}>
                         <Reveal y={16} delay={Math.min(i, 6) * 0.04} className="relative flex gap-5">
-                          <span className="bg-primary text-primary-foreground ring-background relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-medium tabu[...]
+                          <span className="bg-primary text-primary-foreground ring-background relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-medium tabular-nums">
                             {i + 1}
                           </span>
                           <div className="min-w-0 flex-1 pb-6">
@@ -271,4 +271,3 @@ export default async function PackagePage({ params }: Props) {
     </>
   );
 }
-
